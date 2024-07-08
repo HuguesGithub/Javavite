@@ -28,7 +28,7 @@ class HomePageController extends UtilitiesController
         if (SessionUtils::isPostSubmitted()) {
             $logSelection = SessionUtils::fromPost('logSelection');
         } else {
-        	$logSelection = SessionUtils::fromGet('logSelection');
+            $logSelection = SessionUtils::fromGet('logSelection');
         }
         
         if ($logSelection!='') {
