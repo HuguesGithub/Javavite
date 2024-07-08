@@ -1,0 +1,29 @@
+.table>:not(caption)>*>*.bg-g1 {
+    color: #000;
+    background-color: #ffc107;
+}
+
+.table>:not(caption)>*>*.bg-g2 {
+    color: #000;
+    background-color: #fd7e14;
+}
+
+.table>:not(caption)>*>*.bg-g3 {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.table>:not(caption)>*>*.bg-g4 {
+    color: #fff;
+    background-color: #198754;
+}
+
+.table>:not(caption)>*>*.bg-g5 {
+    color: #fff;
+    background-color: #d63384;
+}
+
+.table>:not(caption)>*>*.bg-g6 {
+color: #fff;
+    background-color: #0d6efd;
+}

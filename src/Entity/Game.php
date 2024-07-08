@@ -1,0 +1,282 @@
+<?php
+namespace src\Entity;
+
+use src\Collection\EventCollection;
+use src\Collection\GearCollection;
+use src\Collection\PlayerCollection;
+use src\Collection\TestCollection;
+use src\Constant\ConstantConstant;
+use src\Constant\TemplateConstant;
+use src\Controller\GameController;
+
+class Game extends Entity
+{
+    private PlayerCollection $playerCollection;
+    protected TestCollection $testCollection;
+    protected GearCollection $gearCollection;
+    protected EventCollection $eventCollection;
+    protected array $events;
+    private string $failTest;
+    private bool $ignoreMove;
+    private Player $activePlayer;
+    
+    public function __construct()
+    {
+        $this->failTest = '';
+        $this->ignoreMove = false;
+        $this->init();
+    }
+
+    private function init(): void
+    {
+        $this->playerCollection = new PlayerCollection();
+        $this->testCollection = new TestCollection();
+        $this->gearCollection = new GearCollection();
+        $this->eventCollection = new EventCollection();
+        $this->activePlayer = new Player('');
+    }
+
+    public function getValue(string $tab, mixed $first='', string $second='', int $third=-1): mixed
+    {
+        $returned = '';
+        if ($third!=-1) {
+            $returned = $this->{$tab}[$first][$second][$third] ?? 0;
+        } elseif ($second!='') {
+            $returned = $this->{$tab}[$first][$second];
+        } elseif ($first!='') {
+            $returned = $this->{$tab}[$first];
+        } else {
+            $returned = $this->{$tab};
+        }
+        return $returned;
+    }
+
+    public function getController(): GameController
+    {
+        return new GameController($this);
+    }
+
+    public function getPlayerCollection(): PlayerCollection
+    {
+        return $this->playerCollection;
+    }
+
+    public function getTestCollection(): TestCollection
+    {
+        return $this->testCollection;
+    }
+
+    public function getGearCollection(): GearCollection
+    {
+        return $this->gearCollection;
+    }
+
+    public function getEventCollection(): EventCollection
+    {
+        return $this->eventCollection;
+    }
+
+    public function getActivePlayer(): Player
+    {
+        return $this->activePlayer;
+    }
+
+    // Ajout d'un Player à la partie
+    public function addPlayer(string $playerName, int $startPosition=-1): void
+    {
+        $this->playerCollection->addItem(new Player($playerName, $startPosition));
+    }
+
+    // On récupère un joueur par son nom
+    public function getPlayerByPlayerName(string $playerName): ?Player
+    {
+        return $this->playerCollection->getPlayerByName($playerName);
+    }
+
+    public function addTest(array $params): void
+    {
+        $objPlayer = $this->getPlayerByPlayerName($params[1]);
+        $typeTest = $params[2];
+
+        switch ($typeTest) {
+            case 'moteur' :
+            case 'Moteur' :
+                $this->addGameTest(
+                    $objPlayer,
+                    new EngineTest($params[3], $params[4]));
+            break;
+            case 'de tenue de Route' :
+            case 'Tenue de route' :
+                $this->addGameTest(
+                    $objPlayer,
+                    new SuspensionTest($params[3], $params[4]));
+            break;
+            /*
+            case 'Carrosserie' :
+                $this->addTestBody($objPlayer, $score, $requis);
+            break;
+            case 'Départ' :
+                $this->addTestStart($objPlayer, $score);
+            break;
+            */
+            default :
+                echo 'Test ['.$typeTest.'] non couvert.<br>';
+            break;
+        }
+    }
+
+    public function addGameTest(Player $objPlayer, Test $objTest): void
+    {
+        if ($objTest::class==BodyTest::class) {
+            $objTest->setInflicted(!$this->activePlayer->isEqual($objPlayer));
+            $this->failTest = ConstantConstant::CST_BODY;
+        } elseif ($objTest::class==EngineTest::class) {
+            $objTest->setInflicted(!$this->activePlayer->isEqual($objPlayer));
+            $this->failTest = ConstantConstant::CST_ENGINE;
+        } elseif ($objTest::class==SuspensionTest::class) {
+            $this->failTest = ConstantConstant::CST_SUSPENSION;
+        } else {
+            // Ne rien faire
+        }
+        $this->testCollection->addItem($objTest);
+        $objPlayer->addPlayerTest($objTest);
+    }
+
+
+    public function sortPlayers(): void
+    {
+        $objPlayers = new PlayerCollection();
+        $this->playerCollection->rewind();
+        while ($this->playerCollection->valid()) {
+            $objPlayer = $this->playerCollection->current();
+            $endPosition = $objPlayer->getEndPosition();
+            $objPlayers->addItem($objPlayer, $endPosition);
+            $this->playerCollection->next();
+        }
+        $objPlayers->sort('endPosition');
+    }
+
+    public function setFinalPosition(Player $objPlayer, int $finalPosition=-1): void
+    {
+        $objPlayer->setEndPosition($finalPosition);
+    }
+
+    public function setIgnoreMove(): void
+    {
+        $this->ignoreMove = true;
+    }
+    
+
+    public function cancelBrake(array $params): void
+    {
+        $playerName = $params[0];
+        $typeBrake = $params[1];
+        $indexPlayer = $this->indexPlayers[$playerName];
+        if ($indexPlayer=='') {
+            return;
+        }
+        $objPlayer = $this->objPlayers[$indexPlayer];
+
+        $this->events[ConstantConstant::CST_BRAKE][ConstantConstant::CST_QUANTITY]--;
+        $this->events[ConstantConstant::CST_BRAKE][$typeBrake]--;
+
+        //$objPlayer->addPlayerEvent(ConstantConstant::CST_BRAKE, $typeBrake, -1);
+    }
+
+    public function addGameEvent(Player $objPlayer, Event $objEvent): void
+    {
+        if ($objPlayer==null) {
+            return;
+        }
+        // En cas d'abandon, spécifier le type d'abandon
+        if ($objEvent->getType()==ConstantConstant::CST_DNF) {
+            $objEvent->setSubType($this->failTest);
+        }
+        // En cas de rétrogradation d'au moins 2 rapports, supprimer un Frein, voire un Moteur
+        if ($objEvent->getType()==ConstantConstant::CST_FUEL && $objEvent->getSubType()!=ConstantConstant::CST_1GEAR) {
+            $this->addGameEvent($objPlayer, new BrakeEvent([ConstantConstant::CST_FUEL, 1]));
+            if ($objEvent->getSubType()==ConstantConstant::CST_3GEAR) {
+            // TODO : Finaliser l'ajout de l'EngineEvent.
+            //$this->addGameEvent($objPlayer, new EngineEvent([ConstantConstant::CST_FUEL, 1]));
+            }
+        }
+
+        $this->eventCollection->addItem($objEvent);
+        $objPlayer->addPlayerEvent($objEvent);
+    }
+
+    public function addGear(Player $objPlayer, Gear $objGear): void
+    {
+        if ($this->ignoreMove) {
+            $this->ignoreMove = false;
+            return;
+        }
+        if ($objPlayer==null) {
+            return;
+        }
+        $this->activePlayer = $objPlayer;
+        $this->failTest = ConstantConstant::CST_TIRE;
+
+        $this->gearCollection->addItem($objGear);
+        $objPlayer->addGear($objGear);
+    }
+    
+    public function addTestEngine(Player $objPlayer, int $score, string $requis): void
+    {
+        $seuil = substr($requis, 1);
+        $this->failTest = ConstantConstant::CST_ENGINE;
+        
+        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_QUANTITY]++;
+        if (!isset($this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score])) {
+            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score] = 0;
+        }
+        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score]++;
+        if ($score<=$seuil) {
+            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_FAIL]++;
+        }
+        if (!$this->activePlayer->isEqual($objPlayer)) {
+            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_INFLICTED]++;
+        }
+        
+        $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_QUANTITY]++;
+        if (!isset($this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_SCORE][$score])) {
+            $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_SCORE][$score] = 0;
+        }
+        $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_SCORE][$score]++;
+        if ($score<=$seuil) {
+            $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_FAIL]++;
+        }
+        if (!$this->activePlayer->isEqual($objPlayer)) {
+            $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_INFLICTED]++;
+        }
+        
+        $objPlayer->addPlayerTest($this->activePlayer, ConstantConstant::CST_ENGINE, $score, $seuil);
+    }
+    
+    public function addTestTdr(Player $objPlayer, int $score, string $requis): void
+    {
+        $seuil = substr($requis, 1);
+        $this->failTest = ConstantConstant::CST_SUSPENSION;
+        
+        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_QUANTITY]++;
+        if (!isset($this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score])) {
+            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score] = 0;
+        }
+        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score]++;
+        if ($score<=$seuil) {
+            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_FAIL]++;
+        }
+        
+        $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_QUANTITY]++;
+        if (!isset($this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score])) {
+            $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score] = 0;
+        }
+        $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score]++;
+        if ($score<=$seuil) {
+            $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_FAIL]++;
+        }
+        
+        $objPlayer->addTestTdr($this->activePlayer, $score, $seuil);
+    }
+
+}
