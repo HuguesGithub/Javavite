@@ -84,9 +84,9 @@ class Player extends Entity
             $str = '';
         } else {
             $dnfEvent = $dnfCollection->current();
-            if ($dnfEvent->getSubType()==ConstantConstant::CST_BODY) {
+            if ($dnfEvent->getType()==ConstantConstant::CST_BODY) {
                 $str = LabelConstant::LBL_BODY;
-            } elseif ($dnfEvent->getSubType()==ConstantConstant::CST_TIRE) {
+            } elseif ($dnfEvent->getType()==ConstantConstant::CST_TIRE) {
                 $str = LabelConstant::LBL_LONG_CURVE_EXIT;
             } else {
                 $str = 'Inconnue';

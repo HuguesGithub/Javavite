@@ -5,13 +5,13 @@ use src\Constant\ConstantConstant;
 
 class TrailEvent extends Event
 {
-    public function __construct(array $params)
+    public function __construct()
     {
-        $this->type = ConstantConstant::CST_TRAIL;
-        $this->subType = '';
+        $this->type = '';
         $this->quantity = 1;
 
         // Joueur sur qui est prise l'aspiration
-        $objPlayer = $params[0];
+        // TODO prendre en compte
+        // $objPlayer = $params[0];
     }
 }

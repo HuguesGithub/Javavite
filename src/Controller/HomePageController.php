@@ -23,6 +23,7 @@ class HomePageController extends UtilitiesController
     {
         $arrLignesNonTraitees = [];
         $logSelection = '';
+        $fileSelection = '';
         $blnOk = false;
 
         if (SessionUtils::isPostSubmitted()) {
@@ -38,6 +39,7 @@ class HomePageController extends UtilitiesController
                 $file = $files->current();
                 $fileName = $file->getFileName();
                 if ($fileName==$logSelection) {
+                    $fileSelection = $fileName;
                     $blnOk = true;
                 }
                 $files->next();
@@ -45,7 +47,7 @@ class HomePageController extends UtilitiesController
         }
         
         if ($blnOk) {
-            $objLogFile = new LogFile($this->targetDirectory.$logSelection);
+            $objLogFile = new LogFile($this->targetDirectory.$fileSelection);
             $arrLignesNonTraitees = $objLogFile->parse();
             $content = $objLogFile->display();
         } else {
@@ -66,14 +68,14 @@ class HomePageController extends UtilitiesController
         $dirUtils = new RepertoireUtils($this->targetDirectory);
         $files = $dirUtils->recupererFichiers()->getFiles();
         $str  = '<form method="post" action= "/">';
-        $str .= '<section class="file-panel col-12 col-lg-4 offset-lg-4 my-3">';
         $cpt = 0;
 
+        $content = '';
         while ($files->valid()) {
             $file = $files->current();
 
             $fileName = $file->getFileName();
-            $str .= '
+            $content .= '
             <div class="input-group">
               <div class="input-group-text">
                 <input class="form-check-input mt-0" type="radio" value="'.$fileName.'" name="logSelection"'.($cpt==0 ? ' checked="checked"' : '').'>
@@ -84,35 +86,34 @@ class HomePageController extends UtilitiesController
             $cpt ++;
             $files->next();
         }
+        $content .= '<button class="form-control mt-3 bg-info" type="submit" value="">Analyser</button>';
+        $content .= '</form>';
+        $str .= $this->addSection([$content], 'file-panel col-12 col-lg-4 offset-lg-4 my-3');
 
-        $str .= '<button class="form-control mt-3 bg-info" type="submit" value="">Analyser</button>';
-        $str .= '</form>';
-        $str .= '</section>';
+        $content  = 'Reste à faire :<ul>';
+        $content .= '<li>Global<ul>';
+        $content .= '<li>Gérer les abandons : Blocage</li>';
+        $content .= '<li>Gérer la rétrogradation 3 rapports</li>';
+        $content .= '<li>Gérer l\'usage de pneus en cas de Blocage</li>';
+        $content .= '<li>Gérer les freins lors Blocage</li>';
+        $content .= '</ul><li>Divers<ul>';
+        $content .= '<li>Pouvoir imprimer en PDF le compte-rendu</li>';
+        $content .= '<li>Pouvoir uploader un fichier de log</li>';
+        $content .= '</ul></ul>';
+        $str .= $this->addSection([$content], 'file-panel col-12 col-lg-4 offset-lg-4 my-3');
 
-        $str .= '<section class="file-panel col-12 col-lg-4 offset-lg-4 my-3">';
-        $str .= 'Reste à faire :<ul>';
-        $str .= '<li>Global<ul>';
-        $str .= '<li>Gérer les abandons : Blocage</li>';
-        $str .= '<li>Gérer la rétrogradation 3 rapports</li>';
-        $str .= '<li>Gérer l\'usage de pneus en cas de Blocage</li>';
-        $str .= '<li>Gérer les freins lors Blocage</li>';
-        $str .= '</ul><li>Divers<ul>';
-        $str .= '<li>Pouvoir imprimer en PDF le compte-rendu</li>';
-        $str .= '<li>Pouvoir uploader un fichier de log</li>';
-        $str .= '</ul></ul></section>';
-
-        $str .= '<section class="file-panel col-12 col-lg-4 offset-lg-4 my-3">';
-        $str .= '<h5>Change log v 0.1</h5><ul>';
-        $str .= '<li>Mettre à jour la position de départ du pilote qui hoste</li>';
-        $str .= '<li>Décompter les freins lors d\'aspirations</li>';
-        $str .= '<li>Gérer les abandons : Carrosserie, Moteur, Pneus</li>';
-        $str .= '<li>Gérer les annulations de frein</li>';
-        $str .= '<li>Gérer les tête à queue</li>';
-        $str .= '<li>Ne pas tenir compte des déplacements lors des arrêts rapides</li>';
-        $str .= '<li>Gérer les aspirations</li>';
-        $str .= '<li>Ne pas tenir compte des déplacements lors des aspirations</li>';
-        $str .= '<li>Traiter les panneaux individuels</li>';
-        $str .= '</ul></section>';
+        $content  = '<h5>Change log v 0.1</h5><ul>';
+        $content .= '<li>Mettre à jour la position de départ du pilote qui hoste</li>';
+        $content .= '<li>Décompter les freins lors d\'aspirations</li>';
+        $content .= '<li>Gérer les abandons : Carrosserie, Moteur, Pneus</li>';
+        $content .= '<li>Gérer les annulations de frein</li>';
+        $content .= '<li>Gérer les tête à queue</li>';
+        $content .= '<li>Ne pas tenir compte des déplacements lors des arrêts rapides</li>';
+        $content .= '<li>Gérer les aspirations</li>';
+        $content .= '<li>Ne pas tenir compte des déplacements lors des aspirations</li>';
+        $content .= '<li>Traiter les panneaux individuels</li>';
+        $content .= '</ul>';
+        $str .= $this->addSection([$content], 'file-panel col-12 col-lg-4 offset-lg-4 my-3');
 
         return $str;
     }

@@ -12,7 +12,7 @@ class EventCollection extends Collection
             $objEvent = $this->current();
             if ($objEvent::class==$typeEvent) {
                 $filtered->addItem($objEvent);
-            } elseif ($objEvent->getSubType()==$typeEvent) {
+            } elseif ($objEvent->getType()==$typeEvent) {
                 $filtered->addItem($objEvent);
             } else {
                 // Ne rien faire

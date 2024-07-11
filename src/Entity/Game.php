@@ -145,6 +145,7 @@ class Game extends Entity
 
     public function sortPlayers(): void
     {
+        /*
         $objPlayers = new PlayerCollection();
         $this->playerCollection->rewind();
         while ($this->playerCollection->valid()) {
@@ -154,6 +155,7 @@ class Game extends Entity
             $this->playerCollection->next();
         }
         $objPlayers->sort('endPosition');
+        */
     }
 
     public function setFinalPosition(Player $objPlayer, int $finalPosition=-1): void
@@ -189,13 +191,13 @@ class Game extends Entity
             return;
         }
         // En cas d'abandon, spécifier le type d'abandon
-        if ($objEvent->getType()==ConstantConstant::CST_DNF) {
-            $objEvent->setSubType($this->failTest);
+        if ($objEvent::class==ConstantConstant::CST_DNF && $objEvent->getType()=='') {
+            $objEvent->setType($this->failTest);
         }
         // En cas de rétrogradation d'au moins 2 rapports, supprimer un Frein, voire un Moteur
-        if ($objEvent->getType()==ConstantConstant::CST_FUEL && $objEvent->getSubType()!=ConstantConstant::CST_1GEAR) {
+        if ($objEvent::class==ConstantConstant::CST_FUEL && $objEvent->getType()!=ConstantConstant::CST_1GEAR) {
             $this->addGameEvent($objPlayer, new BrakeEvent([ConstantConstant::CST_FUEL, 1]));
-            if ($objEvent->getSubType()==ConstantConstant::CST_3GEAR) {
+            if ($objEvent->getType()==ConstantConstant::CST_3GEAR) {
             // TODO : Finaliser l'ajout de l'EngineEvent.
             //$this->addGameEvent($objPlayer, new EngineEvent([ConstantConstant::CST_FUEL, 1]));
             }

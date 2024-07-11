@@ -4,7 +4,6 @@ namespace src\Entity;
 class Event extends Entity
 {
     protected string $type;
-    protected string $subType;
     protected int $quantity;
 
     public function getType(): string
@@ -12,14 +11,9 @@ class Event extends Entity
         return $this->type;
     }
 
-    public function getSubType(): string
+    public function setType(string $type): void
     {
-        return $this->subType;
-    }
-
-    public function setSubType(string $subType): void
-    {
-        $this->subType = $subType;
+        $this->type = $type;
     }
 
     public function getQuantity(): int

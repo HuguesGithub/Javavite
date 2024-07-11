@@ -8,8 +8,7 @@ class TaqEvent extends Event
 
     public function __construct()
     {
-        $this->type = ConstantConstant::CST_TAQ;
-        $this->subType = '';
+        $this->type = '';
         $this->quantity = 1;
     }
 

@@ -88,4 +88,13 @@ class UtilitiesController
 
     }
 
+    protected function addSection(array $elements, string $style): string
+    {
+        $content = '<section class="row '.$style.'">';
+        foreach ($elements as $element) {
+            $content .= $element;
+        }
+        return $content . '</section>';
+    }
+
 }

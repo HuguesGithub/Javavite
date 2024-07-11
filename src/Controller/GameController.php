@@ -42,10 +42,8 @@ class GameController extends UtilitiesController
                 $this->addW100(),
                 // Card Aspiration
                 TrailController::displayTrails($this->objGame),
-                /*
                 // Card Tête A Queue
                 TaqController::displayTaQ($this->objGame)
-                */
                 ],
                 'col'
             ),
@@ -120,15 +118,6 @@ class GameController extends UtilitiesController
             $content
         ];
         return $this->getRender(TemplateConstant::TPL_CARD_DOUBLE_TABLE, $attributes);
-    }
-
-    private function addSection(array $elements, string $style): string
-    {
-        $content = '<section class="row '.$style.'">';
-        foreach ($elements as $element) {
-            $content .= $element;
-        }
-        return $content . '</section>';
     }
 
     private function getTopBar(): string

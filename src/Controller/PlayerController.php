@@ -41,6 +41,7 @@ class PlayerController extends UtilitiesController
         $content .= PitStopController::displayPlayerPitStop($this->objPlayer);
         $content .= BrakeController::displayPlayerBrake($this->objPlayer);
         $content .= TrailController::displayPlayerTrail($this->objPlayer);
+        $content .= TaqController::displayPlayerTaQ($this->objPlayer);
 
         $bodyThrown = '';
         for ($i=1; $i<=5; $i++) {

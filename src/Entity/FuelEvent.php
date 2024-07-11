@@ -8,15 +8,13 @@ class FuelEvent extends Event
 
     public function __construct(array $params)
     {
-        $this->type = ConstantConstant::CST_FUEL;
-
-        $subType = trim($params[0]);
-        if (mb_substr($subType, 0, 11)=='brusquement') {
-            $this->subType = ConstantConstant::CST_1GEAR;
-        } elseif (mb_substr($subType, 5, 10)=='violemment') {
-            $this->subType = ConstantConstant::CST_2GEAR;
+        $str = trim($params[0]);
+        if (strpos($str, 'brusquement')!==false) {
+            $this->type = ConstantConstant::CST_1GEAR;
+        } elseif (strpos($str, 'violemment')) {
+            $this->type = ConstantConstant::CST_2GEAR;
         } else {
-            echo $subType.'<br>';
+            $this->type = ConstantConstant::CST_3GEAR;
         }
 
         $this->quantity = 1;

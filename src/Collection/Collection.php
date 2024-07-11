@@ -31,7 +31,7 @@ class Collection implements \Iterator
 
     public function deleteLast(): void
     {
-        $this->deleteItem($this->length());
+        $this->deleteItem($this->length()-1);
     }
 
     public function getItem($key)

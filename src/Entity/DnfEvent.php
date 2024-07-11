@@ -9,8 +9,7 @@ class DnfEvent extends Event
 
     public function __construct(array $params)
     {
-        $this->type = ConstantConstant::CST_DNF;
-        $this->subType = '';
+        $this->type = $params[1] ?? '';
         $this->quantity = 1;
         $this->dnfPosition = $params[0];
     }

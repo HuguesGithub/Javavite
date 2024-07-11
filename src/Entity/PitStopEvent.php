@@ -10,8 +10,7 @@ class PitStopEvent extends Event
 
     public function __construct(bool $longStop, bool $failedShortStop=false)
     {
-        $this->type = ConstantConstant::CST_PITSTOP;
-        $this->subType = '';
+        $this->type = '';
         $this->longStop = $longStop;
         $this->failedShortStop = $failedShortStop;
         $this->quantity = 1;
