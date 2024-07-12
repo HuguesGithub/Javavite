@@ -18,7 +18,6 @@ class GameController extends UtilitiesController
     public function display(): string
     {
         $str = $this->getTopBar();
-        $this->objGame->sortPlayers();
         $str .= $this->addSection([
             $this->addSection([
                 // Card Classement

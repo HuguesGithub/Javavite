@@ -137,7 +137,7 @@ class PlayerController extends UtilitiesController
                 $styles[] = ' colspan="'.($min-1).'"';
             }
             for ($i=$min; $i<=$max; $i++) {
-                $arrContent[] = $this->objPlayer->getGearCollection()->countItems($key, $i);
+                $arrContent[] = $this->objPlayer->getGearCollection()->filterBy(['gear'=>$key, 'score'=>$i])->length();
                 $styles[] = ' class="bg-g'.$key.'"';
             }
             if ($max!=30) {

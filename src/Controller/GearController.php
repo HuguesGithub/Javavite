@@ -35,7 +35,7 @@ class GearController extends GameController
                 $styles[] = ' colspan="'.($min-1).'"';
             }
             for ($i=$min; $i<=$max; $i++) {
-                $arrContent[] = $objGame->getGearCollection()->countItems($key, $i);
+                $arrContent[] = $objGame->getGearCollection()->filterBy(['gear'=>$key, 'score'=>$i])->length();
                 $styles[] = ' class="bg-g'.$key.'"';
             }
             if ($max!=30) {

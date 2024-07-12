@@ -14,7 +14,7 @@ class TaqController extends GameController
     public static function displayTaQ(Game $objGame): string
     {
         $controller = new TaqController($objGame);
-		
+
         $taqEventCollection = $objGame->getEventCollection()->filterBy(TaqEvent::class);
 
         $attributes = [
@@ -28,8 +28,8 @@ class TaqController extends GameController
     public static function displayPlayerTaQ(Player $objPlayer): string
     {
         $taqEventCollection = $objPlayer->getEventCollection()->filterBy(TaqEvent::class);
-		$nb = $taqEventCollection->length();
-		
+        $nb = $taqEventCollection->length();
+
         return '<br>Tête à queue : <span class="badge bg-'.($nb==0?'success':'danger').'">'.$nb.'</span>';
     }
 }

@@ -3,8 +3,8 @@ namespace src\Entity;
 
 class Gear extends Entity
 {
-    private int $gear;
-    private int $score;
+    protected int $gear;
+    protected int $score;
 
     public function __construct(int $gear, int $score)
     {

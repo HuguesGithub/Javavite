@@ -142,22 +142,6 @@ class Game extends Entity
         $objPlayer->addPlayerTest($objTest);
     }
 
-
-    public function sortPlayers(): void
-    {
-        /*
-        $objPlayers = new PlayerCollection();
-        $this->playerCollection->rewind();
-        while ($this->playerCollection->valid()) {
-            $objPlayer = $this->playerCollection->current();
-            $endPosition = $objPlayer->getEndPosition();
-            $objPlayers->addItem($objPlayer, $endPosition);
-            $this->playerCollection->next();
-        }
-        $objPlayers->sort('endPosition');
-        */
-    }
-
     public function setFinalPosition(Player $objPlayer, int $finalPosition=-1): void
     {
         $objPlayer->setEndPosition($finalPosition);

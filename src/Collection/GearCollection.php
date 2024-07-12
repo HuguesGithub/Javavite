@@ -3,17 +3,25 @@ namespace src\Collection;
 
 class GearCollection extends Collection
 {
-    public function countItems(int $gear, int $score): int
+    // ['gear'=>$gear, 'score'=>$score]
+    public function filterBy(array $params): GearCollection
     {
-        $nb = 0;
+        $filtered = new GearCollection();
         $this->rewind();
         while ($this->valid()) {
             $objGear = $this->current();
-            if ($objGear->getGear()==$gear && $objGear->getScore()==$score) {
-                $nb++;
+            $bln = true;
+            foreach ($params as $key=>$value) {
+                if ($objGear->getField($key)!=$value) {
+                    $bln = false;
+                }
+            }
+            if ($bln) {
+                $filtered->addItem($objGear);
             }
             $this->next();
         }
-        return $nb;
+        return $filtered;
     }
+
 }

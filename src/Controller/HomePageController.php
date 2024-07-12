@@ -67,7 +67,6 @@ class HomePageController extends UtilitiesController
     {
         $dirUtils = new RepertoireUtils($this->targetDirectory);
         $files = $dirUtils->recupererFichiers()->getFiles();
-        $str  = '<form method="post" action= "/">';
         $cpt = 0;
 
         $content = '';
@@ -86,36 +85,7 @@ class HomePageController extends UtilitiesController
             $cpt ++;
             $files->next();
         }
-        $content .= '<button class="form-control mt-3 bg-info" type="submit" value="">Analyser</button>';
-        $content .= '</form>';
-        $str .= $this->addSection([$content], 'file-panel col-12 col-lg-4 offset-lg-4 my-3');
-
-        $content  = 'Reste à faire :<ul>';
-        $content .= '<li>Global<ul>';
-        $content .= '<li>Gérer les abandons : Blocage</li>';
-        $content .= '<li>Gérer la rétrogradation 3 rapports</li>';
-        $content .= '<li>Gérer l\'usage de pneus en cas de Blocage</li>';
-        $content .= '<li>Gérer les freins lors Blocage</li>';
-        $content .= '</ul><li>Divers<ul>';
-        $content .= '<li>Pouvoir imprimer en PDF le compte-rendu</li>';
-        $content .= '<li>Pouvoir uploader un fichier de log</li>';
-        $content .= '</ul></ul>';
-        $str .= $this->addSection([$content], 'file-panel col-12 col-lg-4 offset-lg-4 my-3');
-
-        $content  = '<h5>Change log v 0.1</h5><ul>';
-        $content .= '<li>Mettre à jour la position de départ du pilote qui hoste</li>';
-        $content .= '<li>Décompter les freins lors d\'aspirations</li>';
-        $content .= '<li>Gérer les abandons : Carrosserie, Moteur, Pneus</li>';
-        $content .= '<li>Gérer les annulations de frein</li>';
-        $content .= '<li>Gérer les tête à queue</li>';
-        $content .= '<li>Ne pas tenir compte des déplacements lors des arrêts rapides</li>';
-        $content .= '<li>Gérer les aspirations</li>';
-        $content .= '<li>Ne pas tenir compte des déplacements lors des aspirations</li>';
-        $content .= '<li>Traiter les panneaux individuels</li>';
-        $content .= '</ul>';
-        $str .= $this->addSection([$content], 'file-panel col-12 col-lg-4 offset-lg-4 my-3');
-
-        return $str;
+        return $this->getRender(TemplateConstant::TPL_CHANGELOG, [$content]);
     }
 
 }
