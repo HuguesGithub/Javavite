@@ -2,7 +2,6 @@
 namespace src\Entity;
 
 use src\Collection\EventCollection;
-use src\Collection\GearCollection;
 use src\Collection\TestCollection;
 use src\Constant\ConstantConstant;
 use src\Constant\LabelConstant;
@@ -13,7 +12,6 @@ class Player extends Entity
     private string $playerName;
     private int $moves;
     protected TestCollection $testCollection;
-    protected GearCollection $gearCollection;
     protected EventCollection $eventCollection;
     private int $startPosition;
     private int $endPosition;
@@ -30,7 +28,6 @@ class Player extends Entity
     private function init(): void
     {
         $this->testCollection = new TestCollection();
-        $this->gearCollection = new GearCollection();
         $this->eventCollection = new EventCollection();
     }
     
@@ -96,11 +93,6 @@ class Player extends Entity
         return $this->testCollection;
     }
 
-    public function getGearCollection(): GearCollection
-    {
-        return $this->gearCollection;
-    }
-
     public function getEventCollection(): EventCollection
     {
         return $this->eventCollection;
@@ -118,7 +110,7 @@ class Player extends Entity
 
     public function getMoves(): int
     {
-        return $this->gearCollection->length();
+        return $this->eventCollection->getClassEvent(GearEvent::class)->length();
     }
     
     public function setEndPosition(int $endPosition): void
@@ -150,9 +142,4 @@ class Player extends Entity
         }
     }
 
-    public function addGear(Gear $objGear): void
-    {
-        $this->gearCollection->addItem($objGear);
-        $this->moves++;
-    }
 }

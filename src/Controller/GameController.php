@@ -67,6 +67,7 @@ class GameController extends UtilitiesController
             'p-3 mt-5 col-8 offset-2'
         );
 
+        $lis = '';
         // Joueurs
         $contentPlayers = [];
         $objPlayers = $this->objGame->getPlayerCollection();
@@ -77,28 +78,25 @@ class GameController extends UtilitiesController
                 [$objPlayer->getController()->display()],
                 'col'
             );
+            $playerName = $objPlayer->getPlayerName();
+            $lis .= '<li class="list-group-item"><a href="#'.$playerName.'">'.$playerName.'</a></li>';
             $contentPlayers[] = $this->addW100();
             $objPlayers->next();
         }
-        return $str.$this->addSection($contentPlayers, 'p-3 mt-3 col-8 offset-2').
-        '<div class="card grey-panel">
-<div class="card-header grey-header">
-<h5>Accès rapide</h5>
-</div>
 
+        // Menu flottant
+        $menuFlottant = '<div class="card grey-panel">
+            <div class="card-header grey-header text-center">
+                <h5>Accès rapide</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group-items ps-0">
+                    '.$lis.'
+                </ul>
+            </div>
+        </div>';
 
-<div class="card-body">
-  <ul class="list-group-items">
-    <li class="list-group-item"><a href="#">Joueur 1</a></li>
-    <li class="list-group-item"><a href="#">Joueur 2</a></li>
-    <li class="list-group-item"><a href="#">Joueur 3</a></li>
-    <li class="list-group-item"><a href="#">Joueur 4</a></li>
-    <li class="list-group-item"><a href="#">Joueur 5</a></li>
-    <li class="list-group-item"><a href="#">Joueur 6</a></li>
-    <li class="list-group-item"><a href="#">Joueur 7</a></li>
-  </ul>
-</div>
-</div>';
+        return $str.$this->addSection($contentPlayers, 'p-3 mt-3 col-8 offset-2').$menuFlottant;
     }
 
     private function displayGlobal(): string

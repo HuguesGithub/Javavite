@@ -27,5 +27,6 @@
                 %9$s
             </tbody>
         </table>
+        <ul class="list-group-items gearList p-0 text-center">%10$s</ul>
     </div>
 </div>

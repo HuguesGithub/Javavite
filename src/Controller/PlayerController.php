@@ -6,6 +6,7 @@ use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
 use src\Entity\BodyTest;
 use src\Entity\EngineTest;
+use src\Entity\GearEvent;
 use src\Entity\Player;
 use src\Entity\SuspensionTest;
 
@@ -87,6 +88,14 @@ class PlayerController extends UtilitiesController
             '-',
         ]);
 
+        $debug = '';
+        $gearEvents = $this->objPlayer->getEventCollection()->getClassEvent(GearEvent::class);
+        while ($gearEvents->valid()) {
+            $gear = $gearEvents->current();
+            $debug .= GearController::getGearLi($gear);
+            $gearEvents->next();
+        }
+
         $headerGear = '';
         $contentGear = '';
         $this->displayGears($headerGear, $contentGear);
@@ -115,6 +124,7 @@ class PlayerController extends UtilitiesController
             $anchor,
             $headerGear,
             $contentGear,
+            $debug
         ];
         return $this->getRender(TemplateConstant::TPL_CARD_PLAYER, $attributes);
     }
@@ -144,7 +154,11 @@ class PlayerController extends UtilitiesController
                 $styles[] = ' colspan="'.($min-1).'"';
             }
             for ($i=$min; $i<=$max; $i++) {
-                $arrContent[] = $this->objPlayer->getGearCollection()->filterBy(['gear'=>$key, 'score'=>$i])->length();
+                $arrContent[] = $this->objPlayer
+                    ->getEventCollection()
+                    ->getClassEvent(GearEvent::class)
+                    ->filter(['type'=>$key, 'score'=>$i])
+                    ->length();
                 $styles[] = ' class="bg-g'.$key.'"';
             }
             if ($max!=30) {

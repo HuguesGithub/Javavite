@@ -1,11 +1,11 @@
 <?php
 namespace src\Controller;
 
-use src\Collection\GearCollection;
 use src\Constant\ConstantConstant;
 use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
 use src\Entity\Game;
+use src\Entity\GearEvent;
 
 class GearController extends GameController
 {
@@ -35,7 +35,11 @@ class GearController extends GameController
                 $styles[] = ' colspan="'.($min-1).'"';
             }
             for ($i=$min; $i<=$max; $i++) {
-                $arrContent[] = $objGame->getGearCollection()->filterBy(['gear'=>$key, 'score'=>$i])->length();
+                $arrContent[] = $objGame
+                    ->getEventCollection()
+                    ->getClassEvent(GearEvent::class)
+                    ->filter(['type'=>$key, 'score'=>$i])
+                    ->length();
                 $styles[] = ' class="bg-g'.$key.'"';
             }
             if ($max!=30) {
@@ -53,6 +57,12 @@ class GearController extends GameController
             $content
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
+    }
+
+    public static function getGearLi(GearEvent $gear): string
+    {
+        // TODO : Probablement prévoir un switch sur getType.
+        return '<li class="bg-g'.$gear->getType().'">'.$gear->getScore().'</li>';
     }
 
 }

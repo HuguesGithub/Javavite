@@ -2,7 +2,6 @@
 namespace src\Entity;
 
 use src\Collection\EventCollection;
-use src\Collection\GearCollection;
 use src\Collection\PlayerCollection;
 use src\Collection\TestCollection;
 use src\Constant\ConstantConstant;
@@ -13,7 +12,6 @@ class Game extends Entity
 {
     private PlayerCollection $playerCollection;
     protected TestCollection $testCollection;
-    protected GearCollection $gearCollection;
     protected EventCollection $eventCollection;
     protected array $events;
     private string $failTest;
@@ -31,7 +29,6 @@ class Game extends Entity
     {
         $this->playerCollection = new PlayerCollection();
         $this->testCollection = new TestCollection();
-        $this->gearCollection = new GearCollection();
         $this->eventCollection = new EventCollection();
         $this->activePlayer = new Player('');
     }
@@ -49,11 +46,6 @@ class Game extends Entity
     public function getTestCollection(): TestCollection
     {
         return $this->testCollection;
-    }
-
-    public function getGearCollection(): GearCollection
-    {
-        return $this->gearCollection;
     }
 
     public function getEventCollection(): EventCollection
@@ -176,22 +168,6 @@ class Game extends Entity
 
         $this->eventCollection->addItem($objEvent);
         $objPlayer->addPlayerEvent($objEvent);
-    }
-
-    public function addGear(Player $objPlayer, Gear $objGear): void
-    {
-        if ($this->ignoreMove) {
-            $this->ignoreMove = false;
-            return;
-        }
-        if ($objPlayer==null) {
-            return;
-        }
-        $this->activePlayer = $objPlayer;
-        $this->failTest = ConstantConstant::CST_TIRE;
-
-        $this->gearCollection->addItem($objGear);
-        $objPlayer->addGear($objGear);
     }
     
     public function addTestEngine(Player $objPlayer, int $score, string $requis): void

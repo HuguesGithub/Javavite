@@ -145,9 +145,9 @@ class LogFile extends Entity
                 $this->blnTrail = false;
                 $this->tempEvent = new Event();
             }
-            $this->objGame->addGear(
+            $this->objGame->addGameEvent(
                 $currentPlayer,
-                new Gear((int)substr($matches[2], 0, 1), $matches[3]));
+                new GearEvent([(int)substr($matches[2], 0, 1), $matches[3]]));
         } elseif (preg_match($patternWinner, $line, $matches) || preg_match($patternFinish, $line, $matches)) {
             $this->objGame->setFinalPosition(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
