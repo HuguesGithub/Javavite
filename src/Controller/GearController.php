@@ -47,6 +47,8 @@ class GearController extends GameController
 
         $attributes = [
             LabelConstant::LBL_MOVE_DICE,
+            // class additionnelle pour card-body
+            'px-0',
             $controller->getRow(range(1, 30), false),
             $content
         ];

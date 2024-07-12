@@ -23,6 +23,16 @@ class GameController extends UtilitiesController
                 // Card Classement
                 StandingsController::displayStandings($this->objGame),
                 $this->addW100(),
+                // Card Global
+                $this->displayGlobal(),
+                // Card Moteur
+                EngineController::displayEngine($this->objGame),
+                $this->addW100(),
+                // Card Carrosserie
+                BodyController::displayBody($this->objGame),
+                // Card Tenue de Route
+                SuspensionController::displaySuspension($this->objGame),
+                $this->addW100(),
                 // Card Départ
                 StartController::displayStart($this->objGame),
                 // Card Stands
@@ -46,41 +56,49 @@ class GameController extends UtilitiesController
                 ],
                 'col'
             ),
+            $this->addW100(),
             $this->addSection([
-                // Card Global
-                $this->displayGlobal(),
-                // Card Moteur
-                EngineController::displayEngine($this->objGame),
-                $this->addW100(),
-                // Card Carrosserie
-                BodyController::displayBody($this->objGame),
-                // Card Tenue de Route
-                SuspensionController::displaySuspension($this->objGame)
+                // Card Vitesses
+                GearController::displayGears($this->objGame)
                 ],
                 'col'
             ),
-            $this->addW100(),
-            // Card Vitesses
-            GearController::displayGears($this->objGame)
             ],
-            'p-3 mt-5'
+            'p-3 mt-5 col-8 offset-2'
         );
 
         // Joueurs
         $contentPlayers = [];
         $objPlayers = $this->objGame->getPlayerCollection();
         $objPlayers->rewind();
-        $cpt = 1;
         while ($objPlayers->valid()) {
             $objPlayer = $objPlayers->current();
-            $contentPlayers[] = $objPlayer->getController()->display();
+            $contentPlayers[] = $this->addSection(
+                [$objPlayer->getController()->display()],
+                'col'
+            );
+            $contentPlayers[] = $this->addW100();
             $objPlayers->next();
-            if ($cpt%2==0) {
-                $contentPlayers[] = $this->addW100();
-            }
-            $cpt++;
         }
-        return $str.$this->addSection($contentPlayers, 'p-3 mt-5');
+        return $str.$this->addSection($contentPlayers, 'p-3 mt-3 col-8 offset-2').
+        '<div class="card grey-panel">
+<div class="card-header grey-header">
+<h5>Accès rapide</h5>
+</div>
+
+
+<div class="card-body">
+  <ul class="list-group-items">
+    <li class="list-group-item"><a href="#">Joueur 1</a></li>
+    <li class="list-group-item"><a href="#">Joueur 2</a></li>
+    <li class="list-group-item"><a href="#">Joueur 3</a></li>
+    <li class="list-group-item"><a href="#">Joueur 4</a></li>
+    <li class="list-group-item"><a href="#">Joueur 5</a></li>
+    <li class="list-group-item"><a href="#">Joueur 6</a></li>
+    <li class="list-group-item"><a href="#">Joueur 7</a></li>
+  </ul>
+</div>
+</div>';
     }
 
     private function displayGlobal(): string

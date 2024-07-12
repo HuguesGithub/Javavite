@@ -37,6 +37,8 @@ class StartController extends GameController
 
         $attributes = [
             LabelConstant::LBL_START,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([
                 LabelConstant::LBL_THROWN_DICE,
                 LabelConstant::LBL_FAIL_START,

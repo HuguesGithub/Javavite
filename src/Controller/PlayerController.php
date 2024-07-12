@@ -32,6 +32,7 @@ class PlayerController extends UtilitiesController
 
     public function display(): string
     {
+        $anchor = $this->objPlayer->getPlayerName();
         $titreCard  = $this->objPlayer->getCardTitle();
 
         $content = '';
@@ -56,7 +57,6 @@ class PlayerController extends UtilitiesController
                 $this->objPlayer->getTestCollection()->countScores($i+15),
             ]);
         }
-
 
         // Global
         $bodyContent = $this->getRow([
@@ -87,6 +87,9 @@ class PlayerController extends UtilitiesController
             '-',
         ]);
 
+        $headerGear = '';
+        $contentGear = '';
+        $this->displayGears($headerGear, $contentGear);
         $attributes = [
             $titreCard,
             $content,
@@ -108,14 +111,18 @@ class PlayerController extends UtilitiesController
                 LabelConstant::LBL_THROW,
                 LabelConstant::LBL_QUANTITY],
                 false),
-            $bodyThrown
+            $bodyThrown,
+            $anchor,
+            $headerGear,
+            $contentGear,
         ];
-        $attributes = array_merge($attributes, $this->displayGears());
         return $this->getRender(TemplateConstant::TPL_CARD_PLAYER, $attributes);
     }
 
-    private function displayGears(): array
+    private function displayGears(string &$header, string &$content): void
     {
+        $header = $this->getRow(range(1, 30), false);
+
         $arr = [
             1 => ['min'=>1, 'max'=>2],
             2 => ['min'=>2, 'max'=>4],
@@ -146,11 +153,6 @@ class PlayerController extends UtilitiesController
             }
             $content .= $this->getRow($arrContent, true, $styles);
         }
-
-        return [
-            $this->getRow(range(1, 30), false),
-            $content
-        ];
     }
 
 }

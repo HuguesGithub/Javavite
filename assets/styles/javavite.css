@@ -27,3 +27,18 @@
 color: #fff;
     background-color: #0d6efd;
 }
+
+.grey-panel {
+    position: fixed;
+    left: 0;
+    top: calc(50% - 125px);
+    height: 250px;
+}
+
+.grey-panel .grey-header {
+    background: #ccd1d9;
+    padding: 3px;
+    margin-bottom: 15px;
+  }
+
+  

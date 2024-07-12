@@ -19,6 +19,8 @@ class BrakeController extends GameController
 
         $attributes = [
             LabelConstant::LBL_BRAKES,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([
                 LabelConstant::LBL_QUANTITY,
                 LabelConstant::LBL_BRAKE,

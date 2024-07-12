@@ -1,7 +1,8 @@
+<div id="%7$s"></div>
 <div class="card col p-0 m-1">
     <div class="card-header">%1$s</div>
-    <div class="card-body">
-        %2$s
+    <div class="card-body px-0">
+        <p class="mx-2">%2$s</p>
         <table class="table table-sm text-center mt-3">
             <thead>
                 %3$s
@@ -20,10 +21,10 @@
         </table>
         <table class="table table-sm text-center mt-3">
             <thead>
-                %7$s
+                %8$s
             </thead>
             <tbody>
-                %8$s
+                %9$s
             </tbody>
         </table>
     </div>

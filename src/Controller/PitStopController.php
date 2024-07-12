@@ -19,6 +19,8 @@ class PitStopController extends GameController
 
         $attributes = [
             LabelConstant::LBL_PITS,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([
                 LabelConstant::LBL_PIT_STOP,
                 LabelConstant::LBL_LONG_PIT_STOP,

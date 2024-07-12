@@ -36,21 +36,6 @@ class Game extends Entity
         $this->activePlayer = new Player('');
     }
 
-    public function getValue(string $tab, mixed $first='', string $second='', int $third=-1): mixed
-    {
-        $returned = '';
-        if ($third!=-1) {
-            $returned = $this->{$tab}[$first][$second][$third] ?? 0;
-        } elseif ($second!='') {
-            $returned = $this->{$tab}[$first][$second];
-        } elseif ($first!='') {
-            $returned = $this->{$tab}[$first];
-        } else {
-            $returned = $this->{$tab};
-        }
-        return $returned;
-    }
-
     public function getController(): GameController
     {
         return new GameController($this);
@@ -111,14 +96,16 @@ class Game extends Entity
                     $objPlayer,
                     new SuspensionTest($params[3], $params[4]));
             break;
-            /*
             case 'Carrosserie' :
-                $this->addTestBody($objPlayer, $score, $requis);
+                $this->addGameTest(
+                    $objPlayer,
+                    new BodyTest($params[3], $params[4]));
             break;
             case 'Départ' :
-                $this->addTestStart($objPlayer, $score);
+                $this->addGameTest(
+                    $objPlayer,
+                    new StartTest($params[3]));
             break;
-            */
             default :
                 echo 'Test ['.$typeTest.'] non couvert.<br>';
             break;
@@ -237,32 +224,6 @@ class Game extends Entity
         }
         
         $objPlayer->addPlayerTest($this->activePlayer, ConstantConstant::CST_ENGINE, $score, $seuil);
-    }
-    
-    public function addTestTdr(Player $objPlayer, int $score, string $requis): void
-    {
-        $seuil = substr($requis, 1);
-        $this->failTest = ConstantConstant::CST_SUSPENSION;
-        
-        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_QUANTITY]++;
-        if (!isset($this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score])) {
-            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score] = 0;
-        }
-        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score]++;
-        if ($score<=$seuil) {
-            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_FAIL]++;
-        }
-        
-        $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_QUANTITY]++;
-        if (!isset($this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score])) {
-            $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score] = 0;
-        }
-        $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score]++;
-        if ($score<=$seuil) {
-            $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_FAIL]++;
-        }
-        
-        $objPlayer->addTestTdr($this->activePlayer, $score, $seuil);
     }
 
 }

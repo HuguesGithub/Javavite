@@ -1,12 +1,12 @@
 <div class="card col p-0 m-1">
     <div class="card-header">%1$s</div>
-    <div class="card-body">
+    <div class="card-body%2$s">
         <table class="table table-sm text-center">
             <thead>
-                %2$s
+                %3$s
             </thead>
             <tbody>
-                %3$s
+                %4$s
             </tbody>
         </table>
     </div>

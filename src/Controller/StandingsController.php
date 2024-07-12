@@ -21,26 +21,11 @@ class StandingsController extends GameController
             $content .= $objPlayer->getController()->getRowStanding();
             $playerCollection->next();
         }
-        /*
-        foreach ($objGame->getPlayers() as $objPlayer) {
-            $objPlayers[$objPlayer->getEndPosition()] = $objPlayer;
-        }
-        for ($i=1; $i<=10; $i++) {
-            if (!isset($objPlayers[$i])) {
-                continue;
-            }
-            $content .= $controller->getRow([
-                $objPlayers[$i]->getPlayerName(),
-                $i,
-                $objPlayers[$i]->getStartPosition(),
-                $objPlayers[$i]->getMoves(),
-                $objPlayers[$i]->getDnf()
-            ]);
-        }
-            */
 
         $attributes = [
             LabelConstant::LBL_STANDINGS,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([
                 LabelConstant::LBL_PILOTE,
                 LabelConstant::LBL_FINISH_POSITION,

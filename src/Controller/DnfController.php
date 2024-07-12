@@ -17,6 +17,8 @@ class DnfController extends GameController
 
         $attributes = [
             LabelConstant::LBL_DNFS,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([
                 LabelConstant::LBL_QUANTITY,
                 LabelConstant::LBL_BODY,

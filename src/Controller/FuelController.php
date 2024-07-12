@@ -19,6 +19,8 @@ class FuelController extends GameController
 
         $attributes = [
             LabelConstant::LBL_FUELS,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([
                 LabelConstant::LBL_QUANTITY,
                 LabelConstant::LBL_1GEAR,

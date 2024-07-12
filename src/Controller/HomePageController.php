@@ -69,22 +69,19 @@ class HomePageController extends UtilitiesController
         $files = $dirUtils->recupererFichiers()->getFiles();
         $cpt = 0;
 
-        $content = '';
+        $content = '<ul class="list-group">';
         while ($files->valid()) {
             $file = $files->current();
 
             $fileName = $file->getFileName();
-            $content .= '
-            <div class="input-group">
-              <div class="input-group-text">
-                <input class="form-check-input mt-0" type="radio" value="'.$fileName.'" name="logSelection"'.($cpt==0 ? ' checked="checked"' : '').'>
-              </div>
-              <span class="form-control">'.substr($fileName, 0, -4).'</span>
-            </div>        ';
-
+            $content .= '<li class="list-group-item">
+                <input id="logSelection'.$cpt.'" class="form-check-input me-1" type="radio" value="'.$fileName.'" name="logSelection"'.($cpt==0 ? ' checked="checked"' : '').'>
+                <label for="logSelection'.$cpt.'" class="form-check-label">'.substr($fileName, 0, -4).'</label>
+                </li>';
             $cpt ++;
             $files->next();
         }
+        $content .= '</ul>';
         return $this->getRender(TemplateConstant::TPL_CHANGELOG, [$content]);
     }
 

@@ -19,6 +19,8 @@ class TireController extends GameController
 
         $attributes = [
             LabelConstant::LBL_TIRE,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([
                 LabelConstant::LBL_CURVE_EXIT,
                 LabelConstant::LBL_QUANTITY,

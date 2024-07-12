@@ -19,6 +19,8 @@ class TaqController extends GameController
 
         $attributes = [
             LabelConstant::LBL_TAQ,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([LabelConstant::LBL_QUANTITY], false),
             $controller->getRow([$taqEventCollection->length()])
         ];

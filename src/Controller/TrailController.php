@@ -19,6 +19,8 @@ class TrailController extends GameController
 
         $attributes = [
             LabelConstant::LBL_TRAILS,
+            // class additionnelle pour card-body
+            'p-0',
             $controller->getRow([
                 LabelConstant::LBL_QUANTITY,
                 LabelConstant::LBL_TAKEN_TRAIL,

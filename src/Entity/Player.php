@@ -33,21 +33,6 @@ class Player extends Entity
         $this->gearCollection = new GearCollection();
         $this->eventCollection = new EventCollection();
     }
-
-    public function getValue(string $tab, mixed $first='', string $second='', int $third=-1): mixed
-    {
-        $returned = '';
-        if ($third!=-1) {
-            $returned = $this->{$tab}[$first][$second][$third] ?? 0;
-        } elseif ($second!='') {
-            $returned = $this->{$tab}[$first][$second];
-        } elseif ($first!='') {
-            $returned = $this->{$tab}[$first];
-        } else {
-            $returned = $this->{$tab};
-        }
-        return $returned;
-    }
     
     public function getCardTitle(): string
     {
@@ -88,19 +73,16 @@ class Player extends Entity
                 $str = LabelConstant::LBL_BODY;
             } elseif ($dnfEvent->getType()==ConstantConstant::CST_TIRE) {
                 $str = LabelConstant::LBL_LONG_CURVE_EXIT;
+            } elseif ($dnfEvent->getType()==ConstantConstant::CST_ENGINE) {
+                $str = LabelConstant::LBL_ENGINE;
+            } elseif ($dnfEvent->getType()==ConstantConstant::CST_BLOCKED) {
+                $str = LabelConstant::LBL_BLOCKED;
+            } elseif ($dnfEvent->getType()==ConstantConstant::CST_SUSPENSION) {
+                $str = LabelConstant::LBL_SUSPENSION;
             } else {
                 $str = 'Inconnue';
             }
         }
-        /*
-            if ($this->events[ConstantConstant::CST_DNF][ConstantConstant::CST_ENGINE]==1) {
-                $str = LabelConstant::LBL_ENGINE;
-            } elseif ($this->events[ConstantConstant::CST_DNF][ConstantConstant::CST_BLOCKED]==1) {
-                $str = LabelConstant::LBL_BLOCKED;
-            } elseif ($this->events[ConstantConstant::CST_DNF][ConstantConstant::CST_SUSPENSION]==1) {
-                $str = LabelConstant::LBL_SUSPENSION;
-            }
-            */
         return $str;
     }
 
@@ -173,23 +155,4 @@ class Player extends Entity
         $this->gearCollection->addItem($objGear);
         $this->moves++;
     }
-    
-    public function addTestTdr(Player $objPlayer, int $score, int $seuil): void
-    {
-        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_QUANTITY]++;
-        if (!isset($this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score])) {
-            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score] = 0;
-        }
-
-        $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_QUANTITY]++;
-        if (!isset($this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score])) {
-            $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score] = 0;
-        }
-        $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_SCORE][$score]++;
-        if ($score<=$seuil) {
-            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_FAIL]++;
-            $this->tests[ConstantConstant::CST_SUSPENSION][ConstantConstant::CST_FAIL]++;
-        }
-    }
-
 }
