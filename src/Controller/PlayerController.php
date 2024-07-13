@@ -33,6 +33,31 @@ class PlayerController extends UtilitiesController
 
     public function display(): string
     {
+        $arrTestClasses = [
+            EngineTest::class,
+            BodyTest::class,
+            PitStopTest::class,
+            StartTest::class,
+            SuspensionTest::class
+        ];
+        $quantity = 0;
+        $quantityFail = 0;
+        $quantityInflicted = 0;
+        foreach ($arrTestClasses as $objTest) {
+            $classCollection = $this->objPlayer->getEventCollection()->getClassEvent($objTest);
+            if ($objTest==PitStopTest::class) {
+                // Pour les PitStop, on doit ne prendre en compte que les arrêts courts.
+                // Les arrêts longs sont listés mais ne comptent pas comme des tests à proprement parlé
+                $quantity += $classCollection
+                    ->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP])
+                    ->length();
+            } else {
+                $quantity += $classCollection->length();
+            }
+            $quantityFail += $classCollection->filter([ConstantConstant::CST_FAIL=>true])->length();
+            $quantityInflicted += $classCollection->filter([ConstantConstant::CST_INFLICTED=>true])->length();
+        }
+
         $anchor = $this->objPlayer->getPlayerName();
         $titreCard  = $this->objPlayer->getCardTitle();
 
@@ -49,42 +74,57 @@ class PlayerController extends UtilitiesController
         for ($i=1; $i<=5; $i++) {
             $bodyThrown .= $this->getRow([
                 $i,
-                $this->objPlayer->getTestCollection()->countScores($i),
+                $this->objPlayer->getEventCollection()->filter([ConstantConstant::CST_SCORE=>$i])->length(),
                 $i+5,
-                $this->objPlayer->getTestCollection()->countScores($i+5),
+                $this->objPlayer->getEventCollection()->filter([ConstantConstant::CST_SCORE=>$i+5])->length(),
                 $i+10,
-                $this->objPlayer->getTestCollection()->countScores($i+10),
+                $this->objPlayer->getEventCollection()->filter([ConstantConstant::CST_SCORE=>$i+10])->length(),
                 $i+15,
-                $this->objPlayer->getTestCollection()->countScores($i+15),
+                $this->objPlayer->getEventCollection()->filter([ConstantConstant::CST_SCORE=>$i+15])->length(),
             ]);
         }
 
         // Global
         $bodyContent = $this->getRow([
             LabelConstant::LBL_GLOBAL,
-            $this->objPlayer->getTestCollection()->length(),
-            $this->objPlayer->getTestCollection()->countFailItems(),
-            $this->objPlayer->getTestCollection()->countForcedItems(),
+            $quantity,
+            $quantityFail,
+            $quantityInflicted
         ]);
         // Moteur
         $bodyContent .= $this->getRow([
             LabelConstant::LBL_ENGINE,
-            $this->objPlayer->getTestCollection()->filterBy(EngineTest::class)->length(),
-            $this->objPlayer->getTestCollection()->filterBy(EngineTest::class)->countFailItems(),
-            $this->objPlayer->getTestCollection()->filterBy(EngineTest::class)->countForcedItems(),
+            $this->objPlayer->getEventCollection()->getClassEvent(EngineTest::class)->length(),
+            $this->objPlayer->getEventCollection()
+                ->getClassEvent(EngineTest::class)
+                ->filter([ConstantConstant::CST_FAIL=>true])
+                ->length(),
+            $this->objPlayer->getEventCollection()
+                ->getClassEvent(EngineTest::class)
+                ->filter([ConstantConstant::CST_INFLICTED=>true])
+                ->length(),
         ]);
         // Carrosserie
         $bodyContent .= $this->getRow([
             LabelConstant::LBL_BODY,
-            $this->objPlayer->getTestCollection()->filterBy(BodyTest::class)->length(),
-            $this->objPlayer->getTestCollection()->filterBy(BodyTest::class)->countFailItems(),
-            $this->objPlayer->getTestCollection()->filterBy(BodyTest::class)->countForcedItems(),
+            $this->objPlayer->getEventCollection()->getClassEvent(BodyTest::class)->length(),
+            $this->objPlayer->getEventCollection()
+                ->getClassEvent(BodyTest::class)
+                ->filter([ConstantConstant::CST_FAIL=>true])
+                ->length(),
+            $this->objPlayer->getEventCollection()
+                ->getClassEvent(BodyTest::class)
+                ->filter([ConstantConstant::CST_INFLICTED=>true])
+                ->length(),
         ]);
         // Tenue de route
         $bodyContent .= $this->getRow([
             LabelConstant::LBL_SUSPENSION,
-            $this->objPlayer->getTestCollection()->filterBy(SuspensionTest::class)->length(),
-            $this->objPlayer->getTestCollection()->filterBy(SuspensionTest::class)->countFailItems(),
+            $this->objPlayer->getEventCollection()->filterBy(SuspensionTest::class)->length(),
+            $this->objPlayer->getEventCollection()
+                ->getClassEvent(SuspensionTest::class)
+                ->filter([ConstantConstant::CST_FAIL=>true])
+                ->length(),
             '-',
         ]);
 

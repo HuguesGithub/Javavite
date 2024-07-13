@@ -5,6 +5,11 @@ use src\Constant\ConstantConstant;
 use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
 use src\Entity\Game;
+use src\Entity\BodyTest;
+use src\Entity\EngineTest;
+use src\Entity\PitStopTest;
+use src\Entity\StartTest;
+use src\Entity\SuspensionTest;
 
 class GameController extends UtilitiesController
 {
@@ -101,13 +106,47 @@ class GameController extends UtilitiesController
 
     private function displayGlobal(): string
     {
+        $arrTestClasses = [
+            EngineTest::class,
+            BodyTest::class,
+            PitStopTest::class,
+            StartTest::class,
+            SuspensionTest::class
+        ];
+
+        $quantity = 0;
+        $quantityFail = 0;
+        $quantityInflicted = 0;
+        $scores = [];
+        foreach ($arrTestClasses as $objTest) {
+            $classCollection = $this->objGame->getEventCollection()->getClassEvent($objTest);
+            if ($objTest==PitStopTest::class) {
+                // Pour les PitStop, on doit ne prendre en compte que les arrêts courts.
+                // Les arrêts longs sont listés mais ne comptent pas comme des tests à proprement parlé
+                $quantity += $classCollection
+                    ->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP])
+                    ->length();
+            } else {
+                $quantity += $classCollection->length();
+            }
+            $quantityFail += $classCollection->filter([ConstantConstant::CST_FAIL=>true])->length();
+            $quantityInflicted += $classCollection->filter([ConstantConstant::CST_INFLICTED=>true])->length();
+
+            for ($i=1; $i<=20; $i++) {
+                if (!isset($scores[$i])) {
+                    $scores[$i] = 0;
+                }
+                $scores[$i] += $classCollection->filter([ConstantConstant::CST_SCORE=>$i])->length();
+            }
+        }
+
         $content = '';
         for ($i=1; $i<=10; $i++) {
             $content .= $this->getRow([
                 $i,
-                $this->objGame->getTestCollection()->countScores($i),
+                $scores[$i],
                 $i+10,
-                $this->objGame->getTestCollection()->countScores($i+10)
+                $scores[$i+10]
             ]);
         }
 
@@ -120,9 +159,9 @@ class GameController extends UtilitiesController
                 false
             ),
             $this->getRow([
-                $this->objGame->getTestCollection()->length(),
-                $this->objGame->getTestCollection()->countFailItems(),
-                $this->objGame->getTestCollection()->countForcedItems()],
+                $quantity,
+                $quantityFail,
+                $quantityInflicted],
                 false),
             $this->getRow([
                 LabelConstant::LBL_THROW,

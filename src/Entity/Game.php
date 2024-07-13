@@ -78,13 +78,13 @@ class Game extends Entity
         switch ($typeTest) {
             case 'moteur' :
             case 'Moteur' :
-                $this->addGameTest(
+                $this->addGameEvent(
                     $objPlayer,
                     new EngineTest($params[3], $params[4]));
             break;
             case 'de tenue de Route' :
             case 'Tenue de route' :
-                $this->addGameTest(
+                $this->addGameEvent(
                     $objPlayer,
                     new SuspensionTest($params[3], $params[4]));
             break;
@@ -104,7 +104,7 @@ class Game extends Entity
         }
     }
 
-    public function addGameTest(Player $objPlayer, Test $objTest): void
+    public function addGameTest(Player $objPlayer, TestEvent $objTest): void
     {
         if ($objTest::class==BodyTest::class) {
             $objTest->setInflicted(!$this->activePlayer->isEqual($objPlayer));
@@ -153,53 +153,41 @@ class Game extends Entity
         if ($objPlayer==null) {
             return;
         }
-        // En cas d'abandon, spécifier le type d'abandon
-        if ($objEvent::class==ConstantConstant::CST_DNF && $objEvent->getType()=='') {
-            $objEvent->setType($this->failTest);
+        switch ($objEvent::class) {
+            case DnfEvent::class :
+                if ($objEvent->getType()=='') {
+                    $objEvent->setType($this->failTest);
+                }
+            break;
+            case BodyTest::class :
+                $objEvent->setInflicted(!$this->activePlayer->isEqual($objPlayer));
+                $this->failTest = ConstantConstant::CST_BODY;
+            break;
+            case EngineTest::class:
+                $objEvent->setInflicted(!$this->activePlayer->isEqual($objPlayer));
+                $this->failTest = ConstantConstant::CST_ENGINE;
+            break;
+            case SuspensionTest::class :
+                $this->failTest = ConstantConstant::CST_SUSPENSION;
+            break;
+            case FuelEvent::class :
+                if ($objEvent->getType()!=ConstantConstant::CST_1GEAR) {
+                    $this->addGameEvent(
+                        $objPlayer,
+                        new BrakeEvent([ConstantConstant::CST_FUEL, 1])
+                    );
+                    if ($objEvent->getType()==ConstantConstant::CST_3GEAR) {
+                        // TODO : Finaliser l'ajout de l'EngineEvent.
+                        //$this->addGameEvent($objPlayer, new EngineEvent([ConstantConstant::CST_FUEL, 1]));
+                    }
+                }
+            break;
+            default :
+            // Do nothing
+            break;
         }
-        // En cas de rétrogradation d'au moins 2 rapports, supprimer un Frein, voire un Moteur
-        if ($objEvent::class==ConstantConstant::CST_FUEL && $objEvent->getType()!=ConstantConstant::CST_1GEAR) {
-            $this->addGameEvent($objPlayer, new BrakeEvent([ConstantConstant::CST_FUEL, 1]));
-            if ($objEvent->getType()==ConstantConstant::CST_3GEAR) {
-            // TODO : Finaliser l'ajout de l'EngineEvent.
-            //$this->addGameEvent($objPlayer, new EngineEvent([ConstantConstant::CST_FUEL, 1]));
-            }
-        }
-
         $this->eventCollection->addItem($objEvent);
         $objPlayer->addPlayerEvent($objEvent);
     }
     
-    public function addTestEngine(Player $objPlayer, int $score, string $requis): void
-    {
-        $seuil = substr($requis, 1);
-        $this->failTest = ConstantConstant::CST_ENGINE;
-        
-        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_QUANTITY]++;
-        if (!isset($this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score])) {
-            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score] = 0;
-        }
-        $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_SCORE][$score]++;
-        if ($score<=$seuil) {
-            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_FAIL]++;
-        }
-        if (!$this->activePlayer->isEqual($objPlayer)) {
-            $this->tests[ConstantConstant::CST_GLOBAL][ConstantConstant::CST_INFLICTED]++;
-        }
-        
-        $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_QUANTITY]++;
-        if (!isset($this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_SCORE][$score])) {
-            $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_SCORE][$score] = 0;
-        }
-        $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_SCORE][$score]++;
-        if ($score<=$seuil) {
-            $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_FAIL]++;
-        }
-        if (!$this->activePlayer->isEqual($objPlayer)) {
-            $this->tests[ConstantConstant::CST_ENGINE][ConstantConstant::CST_INFLICTED]++;
-        }
-        
-        $objPlayer->addPlayerTest($this->activePlayer, ConstantConstant::CST_ENGINE, $score, $seuil);
-    }
-
 }

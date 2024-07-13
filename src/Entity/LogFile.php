@@ -98,11 +98,11 @@ class LogFile extends Entity
 
         $bln = true;
         if (preg_match($patternTestDepart, $line, $matches)) {
-            $this->objGame->addGameTest(
+            $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
                 new StartTest($matches[2]));
         } elseif (preg_match($patternTestBody, $line, $matches)) {
-            $this->objGame->addGameTest(
+            $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
                 new BodyTest($matches[2], $matches[3]));
         } elseif (preg_match($patternTest, $line, $matches)) {
@@ -241,25 +241,19 @@ class LogFile extends Entity
             // On ajoute un arrêt long.
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
-                new PitStopEvent(true));
+                new PitStopTest(true));
             $this->blnPitStop = false;
         } elseif (preg_match($patternShortStopFail, $line, $matches)) {
             // 13champion93 termine son tour à enguirlander les mécanos ! (jet = 17 , requis <10)
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
-                new PitStopEvent(false, true));
-            $this->objGame->addGameTest(
-                $this->objGame->getPlayerByPlayerName($matches[1]),
-                new PitStopTest($matches[2]));
+                new PitStopTest(false, $matches[2]));
                 $this->blnPitStop = false;
         } elseif (preg_match($patternShortStopSuccess, $line, $matches)) {
             // Antho repart immédiatement des stands ! (jet = 1 , requis <10)
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
-                new PitStopEvent(false, false));
-            $this->objGame->addGameTest(
-                $this->objGame->getPlayerByPlayerName($matches[1]),
-                new PitStopTest($matches[2]));
+                new PitStopTest(false, $matches[2]));
                 $this->objGame->setIgnoreMove();
             $this->blnPitStop = false;
         } else {

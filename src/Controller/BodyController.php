@@ -14,16 +14,16 @@ class BodyController extends GameController
     {
         $controller = new BodyController($objGame);
 
-        $bodyTestCollection = $objGame->getTestCollection()->filterBy(BodyTest::class);
+        $bodyEventCollection = $objGame->getEventCollection()->getClassEvent(BodyTest::class);
 
         $content = '';
         for ($i=1; $i<=10; $i++) {
             $styles = [$i<=1 ? ' class="bg-dark text-white"' : '', $i<=1 ? ' class="bg-dark text-white"' : '', '',''];
             $content .= $controller->getRow([
                 $i,
-                $bodyTestCollection->countScores($i),
+                $bodyEventCollection->filter(['score'=>$i])->length(),
                 $i+10,
-                $bodyTestCollection->countScores($i+10)],
+                $bodyEventCollection->filter(['score'=>$i+10])->length()],
                 true,
                 $styles
             );
@@ -38,9 +38,9 @@ class BodyController extends GameController
                 false
             ),
             $controller->getRow([
-                $bodyTestCollection->length(),
-                $bodyTestCollection->countFailItems(),
-                $bodyTestCollection->countForcedItems()],
+                $bodyEventCollection->length(),
+                $bodyEventCollection->filter([ConstantConstant::CST_FAIL=>true])->length(),
+                $bodyEventCollection->filter([ConstantConstant::CST_INFLICTED=>true])->length()],
                 false),
             $controller->getRow([
                 LabelConstant::LBL_THROW,

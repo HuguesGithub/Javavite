@@ -14,16 +14,16 @@ class EngineController extends GameController
     {
         $controller = new EngineController($objGame);
 
-        $engineTestCollection = $objGame->getTestCollection()->filterBy(EngineTest::class);
+        $engineEventCollection = $objGame->getEventCollection()->getClassEvent(EngineTest::class);
 
         $content = '';
         for ($i=1; $i<=10; $i++) {
             $styles = [$i<=4 ? ' class="bg-dark text-white"' : '', $i<=4 ? ' class="bg-dark text-white"' : '', '',''];
             $content .= $controller->getRow([
                 $i,
-                $engineTestCollection->countScores($i),
+                $engineEventCollection->filter(['score'=>$i])->length(),
                 $i+10,
-                $engineTestCollection->countScores($i+10)],
+                $engineEventCollection->filter(['score'=>$i+10])->length()],
                 true,
                 $styles
             );
@@ -38,9 +38,9 @@ class EngineController extends GameController
                 false
             ),
             $controller->getRow([
-                $engineTestCollection->length(),
-                $engineTestCollection->countFailItems(),
-                $engineTestCollection->countForcedItems()],
+                $engineEventCollection->length(),
+                $engineEventCollection->filter([ConstantConstant::CST_FAIL=>true])->length(),
+                $engineEventCollection->filter([ConstantConstant::CST_INFLICTED=>true])->length()],
                 false),
             $controller->getRow([
                 LabelConstant::LBL_THROW,

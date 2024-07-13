@@ -5,6 +5,7 @@ class Event extends Entity
 {
     protected string $type;
     protected int $quantity;
+    protected int $score = -1;
 
     public function getType(): string
     {

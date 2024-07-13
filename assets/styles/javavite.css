@@ -45,10 +45,6 @@ color: #fff;
     overflow-y: scroll;
 }
 
-.grey-panel .card-body {
-    overflow-y: scroll;
-}
-
 .gearList li {
     width: 20px;
     font-size: 10px;

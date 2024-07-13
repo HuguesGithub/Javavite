@@ -15,16 +15,16 @@ class SuspensionController extends GameController
     {
         $controller = new SuspensionController($objGame);
 
-        $suspensionTestCollection = $objGame->getTestCollection()->filterBy(SuspensionTest::class);
+        $suspensionEventCollection = $objGame->getEventCollection()->getClassEvent(SuspensionTest::class);
 
         $content = '';
         for ($i=1; $i<=10; $i++) {
             $styles = [$i<=4 ? ' class="bg-dark text-white"' : '', $i<=4 ? ' class="bg-dark text-white"' : '', '',''];
             $content .= $controller->getRow([
                 $i,
-                $suspensionTestCollection->countScores($i),
+                $suspensionEventCollection->filter([ConstantConstant::CST_SCORE=>$i])->length(),
                 $i+10,
-                $suspensionTestCollection->countScores($i+10)],
+                $suspensionEventCollection->filter([ConstantConstant::CST_SCORE=>$i+10])->length()],
                 true,
                 $styles
             );
@@ -38,8 +38,8 @@ class SuspensionController extends GameController
                 false
             ),
             $controller->getRow([
-                $suspensionTestCollection->length(),
-                $suspensionTestCollection->countFailItems()],
+                $suspensionEventCollection->length(),
+                $suspensionEventCollection->filter([ConstantConstant::CST_FAIL=>true])->length()],
                 false),
             $controller->getRow([
                 LabelConstant::LBL_THROW,

@@ -1,7 +1,7 @@
 <?php
 namespace src\Entity;
 
-class Test extends Entity
+class TestEvent extends Event
 {
     // Indique si le jet est un échec
     protected bool $fail;

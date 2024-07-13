@@ -14,26 +14,7 @@ class StartController extends GameController
     {
         $controller = new StartController($objGame);
 
-        $testCollection = $objGame->getTestCollection();
-        $testCollection->rewind();
-        $startTestCollection = $testCollection->filterBy(StartTest::class);
-        $startTestCollection->rewind();
-        $quantity = 0;
-        $fail = 0;
-        $success = 0;
-
-        while ($startTestCollection->valid()) {
-            $objStartTest = $startTestCollection->current();
-            $quantity++;
-            if ($objStartTest->getScore()==1) {
-                $fail++;
-            } elseif ($objStartTest->getScore()==20) {
-                $success++;
-            } else {
-                // Ne rien faire
-            }
-            $startTestCollection->next();
-        }
+        $startEventCollection = $objGame->getEventCollection()->getClassEvent(StartTest::class);
 
         $attributes = [
             LabelConstant::LBL_START,
@@ -45,7 +26,10 @@ class StartController extends GameController
                 LabelConstant::LBL_SUCCESS_START],
                 false
             ),
-            $controller->getRow([$quantity, $fail, $success])
+            $controller->getRow([
+                $startEventCollection->length(),
+                $startEventCollection->filter([ConstantConstant::CST_FAIL=>true])->length(),
+                $startEventCollection->filter([ConstantConstant::CST_SUCCESS=>true])->length()])
         ];
 
         return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
@@ -53,26 +37,11 @@ class StartController extends GameController
 
     public static function displayPlayerStart(Player $objPlayer): string
     {
-        $testCollection = $objPlayer->getTestCollection();
-        $testCollection->rewind();
-        $startTestCollection = $testCollection->filterBy(StartTest::class);
-        $startTestCollection->rewind();
-        $quantity = 0;
-        $fail = 0;
-        $success = 0;
-
-        while ($startTestCollection->valid()) {
-            $objStartTest = $startTestCollection->current();
-            $quantity++;
-            if ($objStartTest->getScore()==1) {
-                $fail++;
-            } elseif ($objStartTest->getScore()==20) {
-                $success++;
-            } else {
-                // Ne rien faire
-            }
-            $startTestCollection->next();
-        }
+        $startEventCollection = $objPlayer->getEventCollection()->getClassEvent(StartTest::class);
+        
+        $quantity = $startEventCollection->length();
+        $fail = $startEventCollection->filter([ConstantConstant::CST_FAIL=>true])->length();
+        $success = $startEventCollection->filter([ConstantConstant::CST_SUCCESS=>true])->length();
 
         return 'Départ : <span class="badge bg-info">'.$quantity.sprintf(' Jet%1$s effectué%1$s', $quantity>1 ? 's' : '')
             .'</span> - <span class="badge bg-danger">'.$fail.' Calage'.($fail>1 ? 's' : '')

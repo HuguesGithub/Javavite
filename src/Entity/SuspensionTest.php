@@ -1,7 +1,7 @@
 <?php
 namespace src\Entity;
 
-class SuspensionTest extends Test
+class SuspensionTest extends TestEvent
 {
 
     public function __construct(int $score, string $requis)
@@ -10,6 +10,8 @@ class SuspensionTest extends Test
 
         $this->score = $score;
         $this->fail = $score<=$seuil;
+        $this->type = '';
+        $this->quantity = 1;
     }
     
 }

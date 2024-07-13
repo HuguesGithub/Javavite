@@ -98,7 +98,7 @@ class Player extends Entity
         return $this->eventCollection;
     }
     
-    public function addPlayerTest(Test $objTest): void
+    public function addPlayerTest(TestEvent $objTest): void
     {
         $this->testCollection->addItem($objTest);
     }

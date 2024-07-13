@@ -32,4 +32,7 @@ interface ConstantConstant
     public const CST_ACCEPTED    = 'accepted';
     public const CST_DECLINED    = 'declined';
     public const CST_NBSP        = '&nbsp;';
+    public const CST_LONG_STOP   = 'longStop';
+    public const CST_SHORT_STOP  = 'shortStop';
+    public const CST_TYPE        = 'type';
 }

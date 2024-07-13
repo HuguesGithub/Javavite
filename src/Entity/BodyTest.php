@@ -1,7 +1,7 @@
 <?php
 namespace src\Entity;
 
-class BodyTest extends Test
+class BodyTest extends TestEvent
 {
 
     public function __construct(int $score, string $requis)
@@ -16,6 +16,8 @@ class BodyTest extends Test
 
         $this->score = $score;
         $this->fail = $score<=$seuil;
+        $this->quantity = 1;
+        $this->type = '';
     }
     
 }

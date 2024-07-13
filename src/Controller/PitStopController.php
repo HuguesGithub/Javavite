@@ -6,6 +6,7 @@ use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
 use src\Entity\Game;
 use src\Entity\PitStopEvent;
+use src\Entity\PitStopTest;
 use src\Entity\Player;
 
 class PitStopController extends GameController
@@ -14,8 +15,7 @@ class PitStopController extends GameController
     {
         $controller = new PitStopController($objGame);
 
-        $eventCollection = $objGame->getEventCollection();
-        $pitStopEventCollection = $eventCollection->filterBy(PitStopEvent::class);
+        $pitStopEventCollection = $objGame->getEventCollection()->getClassEvent(PitStopTest::class);
 
         $attributes = [
             LabelConstant::LBL_PITS,
@@ -30,9 +30,13 @@ class PitStopController extends GameController
             ),
             $controller->getRow([
                 $pitStopEventCollection->length(),
-                $pitStopEventCollection->filterPitStop(true)->length(),
-                $pitStopEventCollection->filterPitStop(false)->length(),
-                $pitStopEventCollection->filterPitStop(false, true)->length(),
+                $pitStopEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_LONG_STOP])->length(),
+                $pitStopEventCollection->filter([
+                    ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP,
+                    ConstantConstant::CST_FAIL=>false])->length(),
+                $pitStopEventCollection->filter([
+                    ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP,
+                    ConstantConstant::CST_FAIL=>true])->length(),
             ])
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
