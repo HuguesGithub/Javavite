@@ -15,7 +15,7 @@ class FuelController extends GameController
     {
         $controller = new FuelController($objGame);
 
-        $fuelEventCollection = $objGame->getEventCollection()->filterBy(FuelEvent::class);
+        $fuelEventCollection = $objGame->getEventCollection()->getClassEvent(FuelEvent::class);
 
         $attributes = [
             LabelConstant::LBL_FUELS,
@@ -30,9 +30,9 @@ class FuelController extends GameController
             ),
             $controller->getRow([
                 $fuelEventCollection->length(),
-                $fuelEventCollection->filterBy(ConstantConstant::CST_1GEAR)->length(),
-                $fuelEventCollection->filterBy(ConstantConstant::CST_2GEAR)->length(),
-                $fuelEventCollection->filterBy(ConstantConstant::CST_3GEAR)->length(),
+                $fuelEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_1GEAR])->length(),
+                $fuelEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_2GEAR])->length(),
+                $fuelEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_3GEAR])->length(),
             ])
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
@@ -40,12 +40,15 @@ class FuelController extends GameController
 
     public static function displayPlayerFuel(Player $objPlayer): string
     {
-        $fuelEventCollection = $objPlayer->getEventCollection()->filterBy(FuelEvent::class);
+        $fuelEventCollection = $objPlayer->getEventCollection()->getClassEvent(FuelEvent::class);
 
         return '<br>Consommation : <span class="badge bg-info" title="Total">'.$fuelEventCollection->length()
-            .'</span> - <span class="badge bg-success" title="1 rapport">'.$fuelEventCollection->filterBy(ConstantConstant::CST_1GEAR)->length()
-            .'</span> - <span class="badge bg-warning" title ="2 rapports">'.$fuelEventCollection->filterBy(ConstantConstant::CST_2GEAR)->length()
-            .'</span> - <span class="badge bg-danger" title ="3 rapports">'.$fuelEventCollection->filterBy(ConstantConstant::CST_3GEAR)->length()
+            .'</span> - <span class="badge bg-success" title="1 rapport">'
+            .$fuelEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_1GEAR])->length()
+            .'</span> - <span class="badge bg-warning" title ="2 rapports">'
+            .$fuelEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_2GEAR])->length()
+            .'</span> - <span class="badge bg-danger" title ="3 rapports">'
+            .$fuelEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_3GEAR])->length()
             .'</span>';
     }
 

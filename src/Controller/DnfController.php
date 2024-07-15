@@ -13,7 +13,7 @@ class DnfController extends GameController
     {
         $controller = new DnfController($objGame);
 
-        $dnfEventCollection = $objGame->getEventCollection()->filterBy(DnfEvent::class);
+        $dnfEventCollection = $objGame->getEventCollection()->getClassEvent(DnfEvent::class);
 
         $attributes = [
             LabelConstant::LBL_DNFS,
@@ -30,11 +30,11 @@ class DnfController extends GameController
             ),
             $controller->getRow([
                 $dnfEventCollection->length(),
-                $dnfEventCollection->filterBy(ConstantConstant::CST_BODY)->length(),
-                $dnfEventCollection->filterBy(ConstantConstant::CST_SUSPENSION)->length(),
-                $dnfEventCollection->filterBy(ConstantConstant::CST_ENGINE)->length(),
-                $dnfEventCollection->filterBy(ConstantConstant::CST_BLOCKED)->length(),
-                $dnfEventCollection->filterBy(ConstantConstant::CST_TIRE)->length(),
+                $dnfEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BODY])->length(),
+                $dnfEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_SUSPENSION])->length(),
+                $dnfEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_ENGINE])->length(),
+                $dnfEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BLOCKED])->length(),
+                $dnfEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_TIRE])->length(),
             ])
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);

@@ -12,6 +12,7 @@ class PitStopEvent extends Event
     {
         $this->type = '';
         $this->longStop = $longStop;
+        $this->failed = $failedShortStop;
         $this->failedShortStop = $failedShortStop;
         $this->quantity = 1;
     }

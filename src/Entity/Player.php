@@ -2,7 +2,6 @@
 namespace src\Entity;
 
 use src\Collection\EventCollection;
-use src\Collection\TestCollection;
 use src\Constant\ConstantConstant;
 use src\Constant\LabelConstant;
 use src\Controller\PlayerController;
@@ -11,7 +10,6 @@ class Player extends Entity
 {
     private string $playerName;
     private int $moves;
-    protected TestCollection $testCollection;
     protected EventCollection $eventCollection;
     private int $startPosition;
     private int $endPosition;
@@ -27,7 +25,6 @@ class Player extends Entity
 
     private function init(): void
     {
-        $this->testCollection = new TestCollection();
         $this->eventCollection = new EventCollection();
     }
     
@@ -61,7 +58,7 @@ class Player extends Entity
 
     public function getDnf(): string
     {
-        $dnfCollection = $this->eventCollection->filterBy(DnfEvent::class);
+        $dnfCollection = $this->eventCollection->getClassEvent(DnfEvent::class);
         if ($dnfCollection->length()==0) {
             $str = '';
         } else {
@@ -88,19 +85,9 @@ class Player extends Entity
         return new PlayerController($this);
     }
 
-    public function getTestCollection(): TestCollection
-    {
-        return $this->testCollection;
-    }
-
     public function getEventCollection(): EventCollection
     {
         return $this->eventCollection;
-    }
-    
-    public function addPlayerTest(TestEvent $objTest): void
-    {
-        $this->testCollection->addItem($objTest);
     }
 
 

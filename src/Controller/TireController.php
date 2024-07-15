@@ -15,7 +15,7 @@ class TireController extends GameController
     {
         $controller = new TireController($objGame);
 
-        $tireEventCollection = $objGame->getEventCollection()->filterBy(TireEvent::class);
+        $tireEventCollection = $objGame->getEventCollection()->getClassEvent(TireEvent::class);
 
         $attributes = [
             LabelConstant::LBL_TIRE,
@@ -29,10 +29,10 @@ class TireController extends GameController
                 false
             ),
             $controller->getRow([
-                $tireEventCollection->filterBy(ConstantConstant::CST_TIRE)->length(),
-                $tireEventCollection->filterBy(ConstantConstant::CST_TIRE)->sum(),
-                $tireEventCollection->filterBy(ConstantConstant::CST_BLOCKED)->length(),
-                $tireEventCollection->filterBy(ConstantConstant::CST_BLOCKED)->sum(),
+                $tireEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_TIRE])->length(),
+                $tireEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_TIRE])->sum(),
+                $tireEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BLOCKED])->length(),
+                $tireEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BLOCKED])->sum(),
             ])
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
@@ -40,12 +40,16 @@ class TireController extends GameController
 
     public static function displayPlayerTires(Player $objPlayer): string
     {
-        $tireEventCollection = $objPlayer->getEventCollection()->filterBy(TireEvent::class);
+        $tireEventCollection = $objPlayer->getEventCollection()->getClassEvent(TireEvent::class);
 
-        return '<br>Pneus : <span class="badge bg-info">'.$tireEventCollection->filterBy(ConstantConstant::CST_TIRE)->length()
-            .' Sorties</span> - <span class="badge bg-danger">'.$tireEventCollection->filterBy(ConstantConstant::CST_TIRE)->sum()
-            .' Consommés</span> - <span class="badge bg-info">'.$tireEventCollection->filterBy(ConstantConstant::CST_BLOCKED)->length()
-            .' Blocages</span> - <span class="badge bg-danger">'.$tireEventCollection->filterBy(ConstantConstant::CST_BLOCKED)->sum()
+        return '<br>Pneus : <span class="badge bg-info">'
+            .$tireEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_TIRE])->length()
+            .' Sorties</span> - <span class="badge bg-danger">'
+            .$tireEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_TIRE])->sum()
+            .' Consommés</span> - <span class="badge bg-info">'
+            .$tireEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BLOCKED])->length()
+            .' Blocages</span> - <span class="badge bg-danger">'
+            .$tireEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BLOCKED])->sum()
             .' Consommés</span>';
     }
     

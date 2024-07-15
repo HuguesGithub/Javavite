@@ -15,7 +15,7 @@ class BrakeController extends GameController
     {
         $controller = new BrakeController($objGame);
 
-        $brakeEventCollection = $objGame->getEventCollection()->filterBy(BrakeEvent::class);
+        $brakeEventCollection = $objGame->getEventCollection()->getClassEvent(BrakeEvent::class);
 
         $attributes = [
             LabelConstant::LBL_BRAKES,
@@ -31,10 +31,10 @@ class BrakeController extends GameController
             ),
             $controller->getRow([
                 $brakeEventCollection->length(),
-                $brakeEventCollection->filterBy(ConstantConstant::CST_BRAKE)->length(),
-                $brakeEventCollection->filterBy(ConstantConstant::CST_TRAIL)->length(),
-                $brakeEventCollection->filterBy(ConstantConstant::CST_FUEL)->length(),
-                $brakeEventCollection->filterBy(ConstantConstant::CST_BLOCKED)->length(),
+                $brakeEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BRAKE])->length(),
+                $brakeEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_TRAIL])->length(),
+                $brakeEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_FUEL])->length(),
+                $brakeEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BLOCKED])->length(),
             ])
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
@@ -42,13 +42,17 @@ class BrakeController extends GameController
 
     public static function displayPlayerBrake(Player $objPlayer): string
     {
-        $brakeEventCollection = $objPlayer->getEventCollection()->filterBy(BrakeEvent::class);
+        $brakeEventCollection = $objPlayer->getEventCollection()->getClassEvent(BrakeEvent::class);
 
         return '<br>Freins : <span class="badge bg-info" title="Total">'.$brakeEventCollection->length()
-            .' Consommés</span> - <span class="badge bg-warning" title="Freins">'.$brakeEventCollection->filterBy(ConstantConstant::CST_BRAKE)->length()
-            .'</span> - <span class="badge bg-warning" title ="Aspiration">'.$brakeEventCollection->filterBy(ConstantConstant::CST_TRAIL)->length()
-            .'</span> - <span class="badge bg-warning" title ="Consommation">'.$brakeEventCollection->filterBy(ConstantConstant::CST_FUEL)->length()
-            .'</span> - <span class="badge bg-danger" title ="Blocage">'.$brakeEventCollection->filterBy(ConstantConstant::CST_BLOCKED)->length()
+            .' Consommés</span> - <span class="badge bg-warning" title="Freins">'
+            .$brakeEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BRAKE])->length()
+            .'</span> - <span class="badge bg-warning" title ="Aspiration">'
+            .$brakeEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_TRAIL])->length()
+            .'</span> - <span class="badge bg-warning" title ="Consommation">'
+            .$brakeEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_FUEL])->length()
+            .'</span> - <span class="badge bg-danger" title ="Blocage">'
+            .$brakeEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_BLOCKED])->length()
             .'</span>';
     }
 

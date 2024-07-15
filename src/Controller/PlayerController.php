@@ -120,7 +120,7 @@ class PlayerController extends UtilitiesController
         // Tenue de route
         $bodyContent .= $this->getRow([
             LabelConstant::LBL_SUSPENSION,
-            $this->objPlayer->getEventCollection()->filterBy(SuspensionTest::class)->length(),
+            $this->objPlayer->getEventCollection()->getClassEvent(SuspensionTest::class)->length(),
             $this->objPlayer->getEventCollection()
                 ->getClassEvent(SuspensionTest::class)
                 ->filter([ConstantConstant::CST_FAIL=>true])

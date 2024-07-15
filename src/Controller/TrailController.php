@@ -15,7 +15,7 @@ class TrailController extends GameController
     {
         $controller = new TrailController($objGame);
 
-        $trailEventCollection = $objGame->getEventCollection()->filterBy(TrailEvent::class);
+        $trailEventCollection = $objGame->getEventCollection()->getClassEvent(TrailEvent::class);
 
         $attributes = [
             LabelConstant::LBL_TRAILS,
@@ -29,8 +29,8 @@ class TrailController extends GameController
             ),
             $controller->getRow([
                 $trailEventCollection->length(),
-                $trailEventCollection->filterBy(ConstantConstant::CST_ACCEPTED)->length(),
-                $trailEventCollection->filterBy(ConstantConstant::CST_DECLINED)->length(),
+                $trailEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_ACCEPTED])->length(),
+                $trailEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_DECLINED])->length(),
             ])
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
@@ -38,11 +38,13 @@ class TrailController extends GameController
 
     public static function displayPlayerTrail(Player $objPlayer): string
     {
-        $trailEventCollection = $objPlayer->getEventCollection()->filterBy(TrailEvent::class);
+        $trailEventCollection = $objPlayer->getEventCollection()->getClassEvent(TrailEvent::class);
 
         return '<br>Aspirations : <span class="badge bg-info" title="Total">'.$trailEventCollection->length()
-            .' Proposées</span> - <span class="badge bg-success" title="Acceptées">'.$trailEventCollection->filterBy(ConstantConstant::CST_ACCEPTED)->length()
-            .'</span> - <span class="badge bg-danger" title ="Déclinées">'.$trailEventCollection->filterBy(ConstantConstant::CST_DECLINED)->length()
+            .' Proposées</span> - <span class="badge bg-success" title="Acceptées">'
+            .$trailEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_ACCEPTED])->length()
+            .'</span> - <span class="badge bg-danger" title ="Déclinées">'
+            .$trailEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_DECLINED])->length()
             .'</span>';
     }
 

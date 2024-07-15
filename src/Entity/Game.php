@@ -3,7 +3,6 @@ namespace src\Entity;
 
 use src\Collection\EventCollection;
 use src\Collection\PlayerCollection;
-use src\Collection\TestCollection;
 use src\Constant\ConstantConstant;
 use src\Constant\TemplateConstant;
 use src\Controller\GameController;
@@ -11,7 +10,6 @@ use src\Controller\GameController;
 class Game extends Entity
 {
     private PlayerCollection $playerCollection;
-    protected TestCollection $testCollection;
     protected EventCollection $eventCollection;
     protected array $events;
     private string $failTest;
@@ -28,7 +26,6 @@ class Game extends Entity
     private function init(): void
     {
         $this->playerCollection = new PlayerCollection();
-        $this->testCollection = new TestCollection();
         $this->eventCollection = new EventCollection();
         $this->activePlayer = new Player('');
     }
@@ -41,11 +38,6 @@ class Game extends Entity
     public function getPlayerCollection(): PlayerCollection
     {
         return $this->playerCollection;
-    }
-
-    public function getTestCollection(): TestCollection
-    {
-        return $this->testCollection;
     }
 
     public function getEventCollection(): EventCollection
@@ -70,7 +62,7 @@ class Game extends Entity
         return $this->playerCollection->getPlayerByName($playerName);
     }
 
-    public function addTest(array $params): void
+    public function addGameTest(array $params): void
     {
         $objPlayer = $this->getPlayerByPlayerName($params[1]);
         $typeTest = $params[2];
@@ -89,12 +81,12 @@ class Game extends Entity
                     new SuspensionTest($params[3], $params[4]));
             break;
             case 'Carrosserie' :
-                $this->addGameTest(
+                $this->addGameEvent(
                     $objPlayer,
                     new BodyTest($params[3], $params[4]));
             break;
             case 'Départ' :
-                $this->addGameTest(
+                $this->addGameEvent(
                     $objPlayer,
                     new StartTest($params[3]));
             break;
@@ -102,23 +94,6 @@ class Game extends Entity
                 echo 'Test ['.$typeTest.'] non couvert.<br>';
             break;
         }
-    }
-
-    public function addGameTest(Player $objPlayer, TestEvent $objTest): void
-    {
-        if ($objTest::class==BodyTest::class) {
-            $objTest->setInflicted(!$this->activePlayer->isEqual($objPlayer));
-            $this->failTest = ConstantConstant::CST_BODY;
-        } elseif ($objTest::class==EngineTest::class) {
-            $objTest->setInflicted(!$this->activePlayer->isEqual($objPlayer));
-            $this->failTest = ConstantConstant::CST_ENGINE;
-        } elseif ($objTest::class==SuspensionTest::class) {
-            $this->failTest = ConstantConstant::CST_SUSPENSION;
-        } else {
-            // Ne rien faire
-        }
-        $this->testCollection->addItem($objTest);
-        $objPlayer->addPlayerTest($objTest);
     }
 
     public function setFinalPosition(Player $objPlayer, int $finalPosition=-1): void

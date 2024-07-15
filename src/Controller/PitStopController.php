@@ -44,11 +44,18 @@ class PitStopController extends GameController
 
     public static function displayPlayerPitStop(Player $objPlayer): string
     {
-        $pitStopEventCollection = $objPlayer->getEventCollection()->filterBy(PitStopEvent::class);
+        $pitStopEventCollection = $objPlayer->getEventCollection()->getClassEvent(PitStopEvent::class);
 
-        return '<br>Stands : <span class="badge bg-info" title="Nombre d\'arrêts">'.$pitStopEventCollection->length()
-            .'</span> - <span class="badge bg-success" title="Rapides réussis">'.$pitStopEventCollection->filterPitStop(false)->length()
-            .'</span> - <span class="badge bg-danger" title ="Rapides échoués">'.$pitStopEventCollection->filterPitStop(false, true)->length()
+        return '<br>Stands : <span class="badge bg-info" title="Nombre d\'arrêts">'
+            .$pitStopEventCollection->length()
+            .'</span> - <span class="badge bg-success" title="Rapides réussis">'
+            .$pitStopEventCollection->filter([
+                ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP,
+                ConstantConstant::CST_FAIL=>false])->length()
+            .'</span> - <span class="badge bg-danger" title ="Rapides échoués">'
+            .$pitStopEventCollection->filter([
+                ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP,
+                ConstantConstant::CST_FAIL=>true])->length()
             .'</span>';
     }
 }

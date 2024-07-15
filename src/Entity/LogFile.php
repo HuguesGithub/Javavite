@@ -106,7 +106,7 @@ class LogFile extends Entity
                 $this->objGame->getPlayerByPlayerName($matches[1]),
                 new BodyTest($matches[2], $matches[3]));
         } elseif (preg_match($patternTest, $line, $matches)) {
-            $this->objGame->addTest($matches);
+            $this->objGame->addGameTest($matches);
         } else {
             $bln = false;
         }
