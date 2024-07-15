@@ -5,7 +5,6 @@ use src\Constant\ConstantConstant;
 use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
 use src\Entity\Game;
-use src\Entity\PitStopEvent;
 use src\Entity\PitStopTest;
 use src\Entity\Player;
 
@@ -15,7 +14,7 @@ class PitStopController extends GameController
     {
         $controller = new PitStopController($objGame);
 
-        $pitStopEventCollection = $objGame->getEventCollection()->getClassEvent(PitStopTest::class);
+        $pitStopTestCollection = $objGame->getEventCollection()->getClassEvent(PitStopTest::class);
 
         $attributes = [
             LabelConstant::LBL_PITS,
@@ -29,12 +28,12 @@ class PitStopController extends GameController
                 false
             ),
             $controller->getRow([
-                $pitStopEventCollection->length(),
-                $pitStopEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_LONG_STOP])->length(),
-                $pitStopEventCollection->filter([
+                $pitStopTestCollection->length(),
+                $pitStopTestCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_LONG_STOP])->length(),
+                $pitStopTestCollection->filter([
                     ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP,
                     ConstantConstant::CST_FAIL=>false])->length(),
-                $pitStopEventCollection->filter([
+                $pitStopTestCollection->filter([
                     ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP,
                     ConstantConstant::CST_FAIL=>true])->length(),
             ])
@@ -44,16 +43,16 @@ class PitStopController extends GameController
 
     public static function displayPlayerPitStop(Player $objPlayer): string
     {
-        $pitStopEventCollection = $objPlayer->getEventCollection()->getClassEvent(PitStopEvent::class);
+        $pitStopTestCollection = $objPlayer->getEventCollection()->getClassEvent(PitStopTest::class);
 
         return '<br>Stands : <span class="badge bg-info" title="Nombre d\'arrêts">'
-            .$pitStopEventCollection->length()
+            .$pitStopTestCollection->length()
             .'</span> - <span class="badge bg-success" title="Rapides réussis">'
-            .$pitStopEventCollection->filter([
+            .$pitStopTestCollection->filter([
                 ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP,
                 ConstantConstant::CST_FAIL=>false])->length()
             .'</span> - <span class="badge bg-danger" title ="Rapides échoués">'
-            .$pitStopEventCollection->filter([
+            .$pitStopTestCollection->filter([
                 ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP,
                 ConstantConstant::CST_FAIL=>true])->length()
             .'</span>';

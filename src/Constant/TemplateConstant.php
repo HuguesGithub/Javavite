@@ -4,7 +4,7 @@ namespace src\Constant;
 interface TemplateConstant
 {
     public const ASSETS_PATH            = 'assets/';
-    public const SQL_PATH               = self::ASSETS_PATH.'sql/';
+    public const HTML_PATH              = self::ASSETS_PATH.'html/';
     public const LOGS_PATH              = self::ASSETS_PATH.'logs/';
     public const SRC_PATH               = 'src/';
 

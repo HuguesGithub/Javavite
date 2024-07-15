@@ -50,6 +50,11 @@ class Game extends Entity
         return $this->activePlayer;
     }
 
+    public function setActivePlayer(Player $objPlayer): void
+    {
+        $this->activePlayer = $objPlayer;
+    }
+
     // Ajout d'un Player à la partie
     public function addPlayer(string $playerName, int $startPosition=-1): void
     {
@@ -120,10 +125,10 @@ class Game extends Entity
         $this->events[ConstantConstant::CST_BRAKE][ConstantConstant::CST_QUANTITY]--;
         $this->events[ConstantConstant::CST_BRAKE][$typeBrake]--;
 
-        //$objPlayer->addPlayerEvent(ConstantConstant::CST_BRAKE, $typeBrake, -1);
+        $objPlayer->getEventCollection()->deleteLast();
     }
 
-    public function addGameEvent(Player $objPlayer, Event $objEvent): void
+    public function addGameEvent(Player &$objPlayer, Event $objEvent): void
     {
         if ($objPlayer==null) {
             return;
@@ -147,6 +152,10 @@ class Game extends Entity
             break;
             case FuelEvent::class :
                 if ($objEvent->getType()!=ConstantConstant::CST_1GEAR) {
+                    // On a loggué un frein en mode Frein juste avant, il faut l'enlever
+                    //$this->eventCollection->deleteLast();
+                    //$objPlayer->removePlayerEvent();
+                    // TODO : Si on est dans le cas du joueur qui hoste, il ne faudrait pas remove le dernier event du joueur :/
                     $this->addGameEvent(
                         $objPlayer,
                         new BrakeEvent([ConstantConstant::CST_FUEL, 1])

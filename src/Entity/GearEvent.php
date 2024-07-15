@@ -3,7 +3,6 @@ namespace src\Entity;
 
 class GearEvent extends Event
 {
-    protected int $score;
 
     public function __construct(array $params)
     {

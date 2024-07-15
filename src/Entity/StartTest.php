@@ -1,6 +1,8 @@
 <?php
 namespace src\Entity;
 
+use src\Constant\ConstantConstant;
+
 class StartTest extends TestEvent
 {
     // Indique si le jet est un succès (notamment pour un super départ)
@@ -13,6 +15,12 @@ class StartTest extends TestEvent
         $this->success = $score==20;
         $this->type = '';
         $this->quantity = 1;
+    }
+
+    public function __toString(): string
+    {
+        $str = parent::__toString();
+        return $str . ConstantConstant::CST_TAB.'success : '.($this->success?'true':'false').ConstantConstant::CST_EOL;
     }
     
 }

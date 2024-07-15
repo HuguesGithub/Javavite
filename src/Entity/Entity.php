@@ -18,12 +18,7 @@ class Entity
 
     public function __toString(): string
     {
-        $fields = static::getFields();
-        $str = '';
-        foreach ($fields as $field) {
-            $str .= ($this->{$field} ?? '').' - ';
-        }
-        return substr($str, 0, -3).'<br>';
+        return $this::class.ConstantConstant::CST_EOL;
     }
 
     public function initRepository($repositories=[])
@@ -85,18 +80,6 @@ class Entity
                 ConstantConstant::CST_SUCCESS=>0,
                 ConstantConstant::CST_SCORE=>$score]
         ];
-    }
-
-    public function initGears(): void
-    {
-        $score = [];
-        for ($i=1; $i<=30; $i++) {
-            $score[$i] = 0;
-        }
-        $this->gears = [];
-        for ($i=1; $i<=6; $i++) {
-            $this->gears[$i] = [ConstantConstant::CST_QUANTITY=>0, ConstantConstant::CST_SCORES=>$score];
-        }
     }
 
     public function initEvents(): void

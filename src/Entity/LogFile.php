@@ -64,7 +64,7 @@ class LogFile extends Entity
         } elseif (preg_match($patternPneus, $line, $matches)) {
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
-                new TireEvent([ConstantConstant::CST_TIRE, $matches[2]]));
+                new TireEvent([ConstantConstant::CST_TIRE, $matches[2], $matches[3]]));
         } elseif (preg_match($patternConso, $line, $matches) || preg_match($patternConso2, $line, $matches)) {
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
@@ -141,13 +141,14 @@ class LogFile extends Entity
                 } else {
                     $this->tempEvent->setType(ConstantConstant::CST_DECLINED);
                 }
-                $this->objGame->addGameEvent($activePlayer, $this->tempEvent);
+                $this->objGame->addGameEvent($currentPlayer, $this->tempEvent);
                 $this->blnTrail = false;
                 $this->tempEvent = new Event();
             }
             $this->objGame->addGameEvent(
                 $currentPlayer,
                 new GearEvent([(int)substr($matches[2], 0, 1), $matches[3]]));
+            $this->objGame->setActivePlayer($currentPlayer);
         } elseif (preg_match($patternWinner, $line, $matches) || preg_match($patternFinish, $line, $matches)) {
             $this->objGame->setFinalPosition(
                 $this->objGame->getPlayerByPlayerName($matches[1]),

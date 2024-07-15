@@ -5,13 +5,20 @@ use src\Constant\ConstantConstant;
 
 class TrailEvent extends Event
 {
-    public function __construct()
+    protected string $onPlayerName;
+
+    public function __construct(array $params=[])
     {
         $this->type = '';
         $this->quantity = 1;
 
         // Joueur sur qui est prise l'aspiration
-        // TODO prendre en compte
-        // $objPlayer = $params[0];
+        $this->onPlayerName = $params[0] ?? '';
+    }
+
+    public function __toString(): string
+    {
+        $str = parent::__construct();
+        return $str . ConstantConstant::CST_TAB.'sur le joueur : '.$this->onPlayerName.ConstantConstant::CST_EOL;
     }
 }

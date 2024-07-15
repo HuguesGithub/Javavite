@@ -9,7 +9,6 @@ use src\Controller\PlayerController;
 class Player extends Entity
 {
     private string $playerName;
-    private int $moves;
     protected EventCollection $eventCollection;
     private int $startPosition;
     private int $endPosition;
@@ -17,10 +16,18 @@ class Player extends Entity
     public function __construct(string $playerName, int $startPosition=-1)
     {
         $this->playerName = $playerName;
-        $this->moves = 0;
         $this->startPosition = $startPosition;
         $this->endPosition = 10;
         $this->init();
+    }
+
+    public function __toString(): string
+    {
+        $str  = $this->playerName.ConstantConstant::CST_EOL;
+        $str .= LabelConstant::LBL_START_POSITION." : ".$this->startPosition.ConstantConstant::CST_EOL;
+        $str .= LabelConstant::LBL_FINISH_POSITION." : ".$this->endPosition.ConstantConstant::CST_EOL;
+        $str .= 'Evénements :'.ConstantConstant::CST_EOL;
+        return $str . $this->eventCollection->__toString();
     }
 
     private function init(): void
@@ -114,12 +121,17 @@ class Player extends Entity
         return $blnOk;
     }
 
+    public function removePlayerEvent(): void
+    {
+        $this->eventCollection->deleteLast();
+    }
+
     // Mutualisation des méthodes qui ajoutent un événement
     public function addPlayerEvent(Event $objEvent): void
     {
         // Si la quantité est -1, on va retirer le dernier élément de la Collection
         if ($objEvent->getQuantity()==-1) {
-            $this->eventCollection->deleteLastItem();
+            $this->removePlayerEvent();
         } else {
             // Si l'event est un abandon, on récupère le type pour le renseigner dans l'objet
             if ($objEvent::class==DnfEvent::class) {

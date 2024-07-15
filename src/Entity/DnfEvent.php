@@ -14,6 +14,12 @@ class DnfEvent extends Event
         $this->dnfPosition = $params[0];
     }
 
+    public function __toString(): string
+    {
+        $str = parent::__toString();
+        return $str . ConstantConstant::CST_TAB.'dnfPosition : '.$this->dnfPosition.ConstantConstant::CST_EOL;
+    }
+
     public function getDnfPosition(): int
     {
         return $this->dnfPosition;

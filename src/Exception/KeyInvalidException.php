@@ -5,6 +5,6 @@ class KeyInvalidException extends \Exception
 {
     public function __construct($key)
     {
-        throw new \Exception("Invalid key $key.");
+        parent::__construct("Invalid key $key.", 0);
     }
 }

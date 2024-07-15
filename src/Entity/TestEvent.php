@@ -1,16 +1,19 @@
 <?php
 namespace src\Entity;
 
+use src\Constant\ConstantConstant;
+
 class TestEvent extends Event
 {
     // Indique si le jet est un échec
     protected bool $fail;
-    protected int $score;
     protected bool $inflicted = false;
 
-    public function getScore(): int
+    public function __toString(): string
     {
-        return $this->score;
+        $str  = parent::__toString();
+        $str .= ConstantConstant::CST_TAB.'fail : '.($this->fail?'true':'false').ConstantConstant::CST_EOL;
+        return $str . ConstantConstant::CST_TAB.'inflicted : '.($this->fail?'true':'false').ConstantConstant::CST_EOL;
     }
 
     public function isFail(): bool
