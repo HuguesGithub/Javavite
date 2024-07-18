@@ -11,7 +11,6 @@ class Game extends Entity
 {
     private PlayerCollection $playerCollection;
     protected EventCollection $eventCollection;
-    protected array $events;
     private string $failTest;
     private bool $ignoreMove;
     private Player $activePlayer;
@@ -21,6 +20,19 @@ class Game extends Entity
         $this->failTest = '';
         $this->ignoreMove = false;
         $this->init();
+    }
+
+    public function __toString(): string
+    {
+        $str  = parent::__construct();
+        $str .= ConstantConstant::CST_TAB."Liste des joueurs :".ConstantConstant::CST_EOL;
+        $str .= $this->playerCollection->__toString();
+        $str .= ConstantConstant::CST_TAB."Liste des événements :".ConstantConstant::CST_EOL;
+        $str .= $this->eventCollection->__toString();
+        $str .= ConstantConstant::CST_TAB."failTest : ".$this->failTest.ConstantConstant::CST_EOL;
+        $str .= ConstantConstant::CST_TAB."ignoreMove :".($this->ignoreMove?'true':'false').ConstantConstant::CST_EOL;
+        $str .= ConstantConstant::CST_TAB."activePlayer :".$this->activePlayer->getPlayerName().ConstantConstant::CST_EOL;
+        return $str;
     }
 
     private function init(): void
@@ -55,12 +67,6 @@ class Game extends Entity
         $this->activePlayer = $objPlayer;
     }
 
-    // Ajout d'un Player à la partie
-    public function addPlayer(string $playerName, int $startPosition=-1): void
-    {
-        $this->playerCollection->addItem(new Player($playerName, $startPosition));
-    }
-
     // On récupère un joueur par son nom
     public function getPlayerByPlayerName(string $playerName): ?Player
     {
@@ -74,21 +80,19 @@ class Game extends Entity
 
         switch ($typeTest) {
             case 'moteur' :
-            case 'Moteur' :
                 $this->addGameEvent(
                     $objPlayer,
-                    new EngineTest($params[3], $params[4]));
+                    new EngineTest($params[3], $params[5]));
             break;
             case 'de tenue de Route' :
-            case 'Tenue de route' :
                 $this->addGameEvent(
                     $objPlayer,
-                    new SuspensionTest($params[3], $params[4]));
+                    new SuspensionTest($params[3], $params[5]));
             break;
-            case 'Carrosserie' :
+            case 'carrosserie' :
                 $this->addGameEvent(
                     $objPlayer,
-                    new BodyTest($params[3], $params[4]));
+                    new BodyTest($params[3], $params[5]));
             break;
             case 'Départ' :
                 $this->addGameEvent(
@@ -109,23 +113,6 @@ class Game extends Entity
     public function setIgnoreMove(): void
     {
         $this->ignoreMove = true;
-    }
-    
-
-    public function cancelBrake(array $params): void
-    {
-        $playerName = $params[0];
-        $typeBrake = $params[1];
-        $indexPlayer = $this->indexPlayers[$playerName];
-        if ($indexPlayer=='') {
-            return;
-        }
-        $objPlayer = $this->objPlayers[$indexPlayer];
-
-        $this->events[ConstantConstant::CST_BRAKE][ConstantConstant::CST_QUANTITY]--;
-        $this->events[ConstantConstant::CST_BRAKE][$typeBrake]--;
-
-        $objPlayer->getEventCollection()->deleteLast();
     }
 
     public function addGameEvent(Player &$objPlayer, Event $objEvent): void
@@ -165,6 +152,16 @@ class Game extends Entity
                         //$this->addGameEvent($objPlayer, new EngineEvent([ConstantConstant::CST_FUEL, 1]));
                     }
                 }
+            break;
+            case GearEvent::class :
+                // Dans le cas d'une 4è, 5è ou 6è dont le déplacement est de 4 ou moins, on est probablement dans le cas d'une aspiration.
+                // Alors, on ne l'enregistre pas.
+                if ($objEvent->getType()>=4 && $objEvent->getScore()<=4) {
+                    return;
+                }
+            break;
+            case TireEvent::class :
+                //var_dump($objEvent);
             break;
             default :
             // Do nothing

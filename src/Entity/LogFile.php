@@ -9,12 +9,12 @@ class LogFile extends Entity
     private array $tab;
     private bool $blnPitStop;
     private bool $blnTrail;
-    private int $hostStartingPosition;
     private int $dnfPosition;
     private int $cptStartPosition;
     private int $cptEndPosition;
     private Event $tempEvent;
     private Game $objGame;
+    private bool $ignoreNextMove;
 
     public function __construct(string $fileName=null)
     {
@@ -33,6 +33,7 @@ class LogFile extends Entity
         ];
         $this->blnPitStop = false;
         $this->blnTrail = false;
+        $this->ignoreNextMove = false;
         $this->initGame();
     }
 
@@ -52,19 +53,28 @@ class LogFile extends Entity
         $patternAspiration = '/(.*) peut profiter de l.aspiration sur (.*)/';
         $patternLateBrake = '/(.*) freine en entrée de virage suite à l\'aspiration/';
         $patternTeteAQueue = '/(.*) fait un tête à queue en sortie de virage/';
+        $patternBlocked = '/(.*) est bloqué : accident automatique avec (.*)/';
 
         $bln = true;
-        if (preg_match($patternDnf, $line, $matches) ||
-            preg_match($patternDnf2, $line, $matches)
-        ) {
+        if (preg_match($patternDnf, $line, $matches)) {
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
                 new DnfEvent([$this->dnfPosition]));
+            $this->dnfPosition--;
+        } elseif (preg_match($patternDnf2, $line, $matches)) {
+            $this->objGame->addGameEvent(
+                $this->objGame->getPlayerByPlayerName($matches[1]),
+                new DnfEvent([$this->dnfPosition, ConstantConstant::CST_TIRE]));
             $this->dnfPosition--;
         } elseif (preg_match($patternPneus, $line, $matches)) {
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
                 new TireEvent([ConstantConstant::CST_TIRE, $matches[2], $matches[3]]));
+        } elseif (preg_match($patternBlocked, $line, $matches)) {
+            $this->objGame->addGameEvent(
+                $this->objGame->getPlayerByPlayerName($matches[1]),
+                new DnfEvent([$this->dnfPosition, ConstantConstant::CST_BLOCKED, $matches[2]]));
+            $this->dnfPosition--;
         } elseif (preg_match($patternConso, $line, $matches) || preg_match($patternConso2, $line, $matches)) {
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
@@ -73,8 +83,9 @@ class LogFile extends Entity
             $this->objGame->addGameEvent(
                 $this->objGame->getPlayerByPlayerName($matches[1]),
                 new BrakeEvent([ConstantConstant::CST_BRAKE, 1]));
+            $this->ignoreNextMove = true;
         } elseif (preg_match($patternAspiration, $line, $matches)) {
-            $this->tempEvent = new TrailEvent([$this->objGame->getPlayerByPlayerName($matches[2])]);
+            $this->tempEvent = new TrailEvent($matches[2]);
             $this->blnTrail = true;
         } elseif (preg_match($patternLateBrake, $line, $matches)) {
             $this->objGame->addGameEvent(
@@ -90,32 +101,8 @@ class LogFile extends Entity
         return $bln;
     }
 
-    private function isLineATest(string $line): bool
-    {
-        $patternTestDepart = '/(.*) test Départ :(\d*)/';
-        $patternTestBody = '/Test carrosserie pour (.*) : Jet = ([\d]*) {2}\(requis(.*)/';
-        $patternTest = '/(.*) : Test (.*) : Jet = (\d*).*requis ([<>\d]*)/';
-
-        $bln = true;
-        if (preg_match($patternTestDepart, $line, $matches)) {
-            $this->objGame->addGameEvent(
-                $this->objGame->getPlayerByPlayerName($matches[1]),
-                new StartTest($matches[2]));
-        } elseif (preg_match($patternTestBody, $line, $matches)) {
-            $this->objGame->addGameEvent(
-                $this->objGame->getPlayerByPlayerName($matches[1]),
-                new BodyTest($matches[2], $matches[3]));
-        } elseif (preg_match($patternTest, $line, $matches)) {
-            $this->objGame->addGameTest($matches);
-        } else {
-            $bln = false;
-        }
-        return $bln;
-    }
-
     public function isAnotherLine(string $line): bool
     {
-        $patternChoixStand = '/(.*) choisi son stand/';
         $patternMove = '/(.*) passe la (.*) et fait (\d*) au/';
         $patternWinner = '/(.*) remporte la course/';
         $patternFinish = '/(.*) franchit la ligne d/';
@@ -123,16 +110,11 @@ class LogFile extends Entity
         $patternFreinAnnul = '/(.*) choisit finalement de ne pas appuyer sur le frein/';
 
         $bln = true;
-        if (preg_match($patternChoixStand, $line, $matches)) {
-            $this->objGame->addPlayer($matches[1], $this->cptStartPosition);
-            $this->cptStartPosition++;
-            $this->dnfPosition++;
-        } elseif (strpos($line, 'vous de choisir votre stand')!==false) {
-            $this->objGame->addPlayer('unknown', $this->cptStartPosition);
-            $this->hostStartingPosition = $this->cptStartPosition;
-            $this->cptStartPosition++;
-            $this->dnfPosition++;
-        } elseif (preg_match($patternMove, $line, $matches)) {
+        if (preg_match($patternMove, $line, $matches)) {
+            if ($this->ignoreNextMove) {
+                $this->ignoreNextMove = false;
+                return $bln;
+            }
             $currentPlayer = $this->objGame->getPlayerByPlayerName($matches[1]);
             if ($this->blnTrail) {
                 $activePlayer = $this->objGame->getActivePlayer();
@@ -157,8 +139,9 @@ class LogFile extends Entity
         } elseif ($this->blnPitStop || preg_match($patternPitStop, $line, $matches)) {
             $this->dealWithPitStop($line);
         } elseif (preg_match($patternFreinAnnul, $line, $matches)) {
-            $this->objGame->getEventCollection()->deleteLast();
-            $this->objGame->getActivePlayer()->getEventCollection()->deleteLast();
+            $this->ignoreNextMove = true;
+            //$this->objGame->getEventCollection()->deleteLast();
+            //$this->objGame->getActivePlayer()->getEventCollection()->deleteLast();
         } else {
             $bln = false;
         }
@@ -172,6 +155,8 @@ class LogFile extends Entity
         $this->cptEndPosition = 1;
         $this->tempEvent = new Event();
 
+        $patternTest = '/(.*) : Test (.*) : Jet = (\d*)(.*requis ([<>\d]*))?/';
+
         $arrLignesNonTraitees = [];
         
         foreach ($this->lines as $line) {
@@ -183,7 +168,12 @@ class LogFile extends Entity
                 continue;
             }
 
-            if ($this->isLineATest($line)) {
+            if (preg_match($patternTest, $line, $matches)) {
+                $this->objGame->addGameTest($matches);
+                if ($matches[2]=='Départ') {
+                    $this->cptStartPosition++;
+                    $this->dnfPosition++;
+                }
                 continue;
             }
 
@@ -205,6 +195,8 @@ class LogFile extends Entity
         // L'idée est de chercher certaines phrases clés qui sont à ignorer.
         // Ca permet d'éviter de passer dans toutes les regexp et de ne rien trouver.
         $checks = [
+            "choisi son stand",
+            "à vous de choisir votre stand",
             "c'est votre tour!",
             "perd un morceau",
             "perd un point moteur",

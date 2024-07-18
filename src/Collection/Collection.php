@@ -1,12 +1,25 @@
 <?php
 namespace src\Collection;
 
+use src\Constant\ConstantConstant;
 use src\Exception\KeyHasUseException;
 
 class Collection implements \Iterator
 {
     protected $items = [];
     protected $index = 0;
+
+    public function __toString(): string
+    {
+        $str = '';
+        $this->rewind();
+        while ($this->valid()) {
+            $objEvent = $this->current();
+            $str .= $objEvent->__toString().ConstantConstant::CST_EOL;
+            $this->next();
+        }
+        return $str;
+    }
 
     public function addItem($obj, $key=null): self
     {

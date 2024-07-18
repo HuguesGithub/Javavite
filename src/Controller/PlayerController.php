@@ -129,11 +129,12 @@ class PlayerController extends UtilitiesController
         ]);
 
         $debug = '';
-        $gearEvents = $this->objPlayer->getEventCollection()->getClassEvent(GearEvent::class);
-        while ($gearEvents->valid()) {
-            $gear = $gearEvents->current();
-            $debug .= GearController::getGearLi($gear);
-            $gearEvents->next();
+        $events = $this->objPlayer->getEventCollection();
+        $events->rewind();
+        while ($events->valid()) {
+            $event = $events->current();
+            $debug .= EventController::getEventLi($event);
+            $events->next();
         }
 
         $headerGear = '';
@@ -166,6 +167,12 @@ class PlayerController extends UtilitiesController
             $contentGear,
             $debug
         ];
+/*
+        $fileName = $this->objPlayer->getPlayerName().'.html';
+        $handle = fopen(PLUGIN_PATH.TemplateConstant::HTML_PATH.$fileName, 'w');
+        fwrite($handle, $this->objPlayer->__toString());
+        fclose($handle);
+*/
         return $this->getRender(TemplateConstant::TPL_CARD_PLAYER, $attributes);
     }
 

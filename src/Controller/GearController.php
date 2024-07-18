@@ -7,7 +7,7 @@ use src\Constant\TemplateConstant;
 use src\Entity\Game;
 use src\Entity\GearEvent;
 
-class GearController extends GameController
+class GearController extends EventController
 {
 
     public static function displayGears(Game $objGame): string

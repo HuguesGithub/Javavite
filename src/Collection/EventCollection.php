@@ -5,17 +5,6 @@ use src\Constant\ConstantConstant;
 
 class EventCollection extends Collection
 {
-    public function __toString(): string
-    {
-        $str = '';
-        $this->rewind();
-        while ($this->valid()) {
-            $objEvent = $this->current();
-            $str .= $objEvent->__toString().ConstantConstant::CST_EOL;
-            $this->next();
-        }
-        return $str;
-    }
 
     public function getClassEvent(string $typeEvent): EventCollection
     {

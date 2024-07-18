@@ -3,7 +3,7 @@ namespace src\Entity;
 
 use src\Constant\ConstantConstant;
 
-class TrailEvent extends Event
+class BlockEvent extends Event
 {
     protected string $onPlayerName;
 
@@ -12,13 +12,13 @@ class TrailEvent extends Event
         $this->type = '';
         $this->quantity = 1;
 
-        // Joueur sur qui est prise l'aspiration
+        // Joueur qui bloque le passage
         $this->onPlayerName = $playerName ?? '';
     }
 
     public function __toString(): string
     {
         $str = parent::__toString();
-        return $str . ConstantConstant::CST_TAB.'sur le joueur : '.$this->onPlayerName.ConstantConstant::CST_EOL;
+        return $str . ConstantConstant::CST_TAB.'par le joueur : '.$this->onPlayerName.ConstantConstant::CST_EOL;
     }
 }

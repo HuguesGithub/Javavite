@@ -1,3 +1,8 @@
+.table>:not(caption)>*>*.bg-g0, .bg-g0 {
+    color: #fff;
+    background-color: #4d4b46;
+}
+
 .table>:not(caption)>*>*.bg-g1, .bg-g1 {
     color: #000;
     background-color: #ffc107;

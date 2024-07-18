@@ -10,6 +10,7 @@ use src\Entity\EngineTest;
 use src\Entity\PitStopTest;
 use src\Entity\StartTest;
 use src\Entity\SuspensionTest;
+use src\Utils\SessionUtils;
 
 class GameController extends UtilitiesController
 {
@@ -23,54 +24,57 @@ class GameController extends UtilitiesController
     public function display(): string
     {
         $str = $this->getTopBar();
-        $str .= $this->addSection([
-            $this->addSection([
-                // Card Classement
-                StandingsController::displayStandings($this->objGame),
+        $playerSelection = SessionUtils::fromGet('player');
+        if ($playerSelection=='') {
+            $str .= $this->addSection([
+                $this->addSection([
+                    // Card Classement
+                    StandingsController::displayStandings($this->objGame),
+                    $this->addW100(),
+                    // Card Global
+                    $this->displayGlobal(),
+                    // Card Moteur
+                    EngineController::displayEngine($this->objGame),
+                    $this->addW100(),
+                    // Card Carrosserie
+                    BodyController::displayBody($this->objGame),
+                    // Card Tenue de Route
+                    SuspensionController::displaySuspension($this->objGame),
+                    $this->addW100(),
+                    // Card Départ
+                    StartController::displayStart($this->objGame),
+                    // Card Stands
+                    PitStopController::displayPitStops($this->objGame),
+                    $this->addW100(),
+                    // Card Abandon
+                    DnfController::displayDnfs($this->objGame),
+                    $this->addW100(),
+                    // Card Consommation
+                    FuelController::displayFuel($this->objGame),
+                    // Card Pneu
+                    TireController::displayTires($this->objGame),
+                    $this->addW100(),
+                    // Card Frein
+                    BrakeController::displayBrakes($this->objGame),
+                    $this->addW100(),
+                    // Card Aspiration
+                    TrailController::displayTrails($this->objGame),
+                    // Card Tête A Queue
+                    TaqController::displayTaQ($this->objGame)
+                    ],
+                    'col'
+                ),
                 $this->addW100(),
-                // Card Global
-                $this->displayGlobal(),
-                // Card Moteur
-                EngineController::displayEngine($this->objGame),
-                $this->addW100(),
-                // Card Carrosserie
-                BodyController::displayBody($this->objGame),
-                // Card Tenue de Route
-                SuspensionController::displaySuspension($this->objGame),
-                $this->addW100(),
-                // Card Départ
-                StartController::displayStart($this->objGame),
-                // Card Stands
-                PitStopController::displayPitStops($this->objGame),
-                $this->addW100(),
-                // Card Abandon
-                DnfController::displayDnfs($this->objGame),
-                $this->addW100(),
-                // Card Consommation
-                FuelController::displayFuel($this->objGame),
-                // Card Pneu
-                TireController::displayTires($this->objGame),
-                $this->addW100(),
-                // Card Frein
-                BrakeController::displayBrakes($this->objGame),
-                $this->addW100(),
-                // Card Aspiration
-                TrailController::displayTrails($this->objGame),
-                // Card Tête A Queue
-                TaqController::displayTaQ($this->objGame)
+                $this->addSection([
+                    // Card Vitesses
+                    GearController::displayGears($this->objGame)
+                    ],
+                    'col'
+                ),
                 ],
-                'col'
-            ),
-            $this->addW100(),
-            $this->addSection([
-                // Card Vitesses
-                GearController::displayGears($this->objGame)
-                ],
-                'col'
-            ),
-            ],
-            'p-3 mt-5 col-8 offset-2'
-        );
+                'p-3 mt-5 col-8 offset-2'
+            );
+        }
 
         $lis = '';
         // Joueurs
@@ -79,13 +83,19 @@ class GameController extends UtilitiesController
         $objPlayers->rewind();
         while ($objPlayers->valid()) {
             $objPlayer = $objPlayers->current();
+            $playerName = $objPlayer->getPlayerName();
+            if ($playerSelection!='' && $playerSelection!=$playerName) {
+                $objPlayers->next();
+                continue;
+            }
+            // Construction du contenu de la section principale
             $contentPlayers[] = $this->addSection(
                 [$objPlayer->getController()->display()],
                 'col'
             );
-            $playerName = $objPlayer->getPlayerName();
-            $lis .= '<li class="list-group-item"><a href="#'.$playerName.'">'.$playerName.'</a></li>';
             $contentPlayers[] = $this->addW100();
+            // Construction du menu latéral
+            $lis .= '<li class="list-group-item"><a href="#'.$playerName.'">'.$playerName.'</a></li>';
             $objPlayers->next();
         }
 
@@ -100,7 +110,12 @@ class GameController extends UtilitiesController
                 </ul>
             </div>
         </div>';
-
+/*
+        $fileName = 'test.html';
+        $handle = fopen(PLUGIN_PATH.TemplateConstant::HTML_PATH.$fileName, 'w');
+        fputs($handle, $str.$this->addSection($contentPlayers, 'p-3 mt-3 col-8 offset-2'));
+        fclose($handle);
+*/
         return $str.$this->addSection($contentPlayers, 'p-3 mt-3 col-8 offset-2').$menuFlottant;
     }
 
