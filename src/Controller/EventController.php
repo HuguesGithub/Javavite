@@ -20,48 +20,49 @@ class EventController extends GameController
 
     public static function getEventLi(Event $event): string
     {
+        $returned = '<li class="bg-g0" title="%s">%s</li>';
         switch ($event::class) {
             case BrakeEvent::class :
-                $returned = '<li class="bg-g0" title="Freinage">-</li>';
+                $params = ['Freinage', '-'];
             break;
             case DnfEvent::class :
-                $returned = '<li class="bg-g0" title="Abandon">X</li>';
+                $params = ['Abandon', 'X'];
             break;
             case FuelEvent::class :
-                $returned = '<li class="bg-g0" title="Rétrogradation">'.$event->getQuantity().'</li>';
+                $params = ['Rétrogradation', $event->getQuantity()];
             break;
             case GearEvent::class :
-                $returned = GearController::getGearLi($event);
+                return GearController::getGearLi($event);
             break;
             case TaqEvent::class :
-                $returned = '<li class="bg-g0" title="Tête à queue">U</li>';
+                $params = ['Tête à queue', 'U'];
             break;
             case TireEvent::class :
-                $returned = '<li class="bg-g0" title="Sortie de virage">-'.$event->getQuantity().'</li>';
+                $params = ['Sortie de virage', '-'.$event->getQuantity()];
             break;
             case TrailEvent::class :
-                $returned = '<li class="bg-g0" title="Aspiration">+</li>';
+                $params = ['Aspiration', '+'];
             break;
             case BodyTest::class :
-                $returned = '<li class="bg-g0" title="Carrosserie">'.$event->getScore().'</li>';
+                $params = ['Carrosserie', $event->getScore()];
             break;
             case EngineTest::class :
-                $returned = '<li class="bg-g0" title="Moteur">'.$event->getScore().'</li>';
+                $params = ['Moteur', $event->getScore()];
             break;
             case PitStopTest::class :
-                $returned = '<li class="bg-g0" title="Arrêt aux stands">¤</li>';
+                $params = ['Arrêt aux stands', '¤'];
             break;
             case StartTest::class :
-                $returned = '<li class="bg-g0" title="Départ">'.$event->getScore().'</li>';
+                $params = ['Départ', $event->getScore()];
             break;
             case SuspensionTest::class :
-                $returned = '<li class="bg-g0" title="Tenue de route">'.$event->getScore().'</li>';
+                $params = ['Tenue de route', $event->getScore()];
             break;
             default :
-            $returned = '<li class="bg-g">X</li>';
+                $params = ['Non défini', '?'];
             break;
         }
-        return $returned;
+        return vsprintf($returned, $params);
     }
 
 }

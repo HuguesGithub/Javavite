@@ -182,4 +182,25 @@ class Game extends Entity
         }
     }
     
+    public function sortPlayers(): void
+    {
+        $finalStandings = [];
+        $playerCollection = $this->playerCollection;
+        $playerCollection->rewind();
+        $max = 0;
+        while ($playerCollection->valid()) {
+            $objPlayer = $playerCollection->current();
+            $rank = $objPlayer->getEndPosition();
+            $finalStandings[$rank] = $objPlayer;
+            $max = max($max, $rank);
+            $playerCollection->next();
+        }
+        $this->playerCollection = new PlayerCollection();
+        for ($i=1; $i<=$max; $i++) {
+            if (!isset($finalStandings[$i])) {
+                continue;
+            }
+            $this->playerCollection->addItem($finalStandings[$i]);
+        }
+    }
 }

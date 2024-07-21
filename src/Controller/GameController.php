@@ -27,6 +27,7 @@ class GameController extends UtilitiesController
         $str = $this->getTopBar();
         $playerSelection = SessionUtils::fromGet('player');
         if ($playerSelection=='') {
+            $this->objGame->sortPlayers();
             $str .= $this->addSection([
                 $this->addSection([
                     // Card Classement

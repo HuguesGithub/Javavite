@@ -155,9 +155,6 @@ class LogFile extends Entity
         $this->cptEndPosition = 1;
         $this->tempEvent = new Event();
 
-        $patternTest = '/(.*) : Test (.*) : Jet = (\d*)(.*requis ([<>\d]*))?/';
-        $patternTestMeteo = '/(.*)jet = (\d*).*(\d*)/';
-
         $arrLignesNonTraitees = [];
         
         foreach ($this->lines as $line) {
@@ -173,16 +170,7 @@ class LogFile extends Entity
                 continue;
             }
 
-            if (preg_match($patternTest, $line, $matches)) {
-                $this->objGame->addGameTest($matches);
-                if ($matches[2]=='Départ') {
-                    $this->cptStartPosition++;
-                    $this->dnfPosition++;
-                }
-                continue;
-            }
-            if (preg_match($patternTestMeteo, $line, $matches)) {
-                $this->objGame->addGameTest([null, '', 'Météo', $matches[2], $matches[3]]);
+            if ($this->isLineATest($line)) {
                 continue;
             }
 
@@ -192,6 +180,27 @@ class LogFile extends Entity
             }
         }
         return $arrLignesNonTraitees;
+    }
+
+    private function isLineATest(string $line): bool
+    {
+        $patternTest = '/(.*) : Test (.*) : Jet = (\d*)(.*requis ([<>\d]*))?/';
+        $patternTestMeteo = '/(.*)jet = (\d*).*(\d*)/';
+
+        $bln = true;
+        if (preg_match($patternTest, $line, $matches)) {
+            $this->objGame->addGameTest($matches);
+            if ($matches[2]=='Départ') {
+                $this->cptStartPosition++;
+                $this->dnfPosition++;
+            }
+        } elseif (preg_match($patternTestMeteo, $line, $matches)) {
+            $this->objGame->addGameTest([null, '', 'Météo', $matches[2], $matches[3]]);
+        } else {
+            $bln = false;
+        }
+
+        return $bln;
     }
 
     private function excludeLines(string $line): bool
