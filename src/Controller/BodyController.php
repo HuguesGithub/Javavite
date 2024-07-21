@@ -18,24 +18,25 @@ class BodyController extends GameController
 
         $content = '';
         for ($i=1; $i<=10; $i++) {
-            $styles = [$i<=1 ? ' class="bg-dark text-white"' : '', $i<=1 ? ' class="bg-dark text-white"' : '', '',''];
             $content .= $controller->getRow([
                 $i,
                 $bodyEventCollection->filter(['score'=>$i])->length(),
                 $i+10,
                 $bodyEventCollection->filter(['score'=>$i+10])->length()],
                 true,
-                $styles
+                [' class="bg-light"', $i<=1 ? ' class="bg-danger"' : '', ' class="bg-light"', '']
             );
         }
 
+        $style = ' class="bg-dark text-white"';
         $attributes = [
             LabelConstant::LBL_BODY,
             $controller->getRow([
                 LabelConstant::LBL_THROWN_DICE,
                 LabelConstant::LBL_FAILED_DICE,
                 LabelConstant::LBL_FORCED_DICE],
-                false
+                false,
+                array_fill(0, 3, $style)
             ),
             $controller->getRow([
                 $bodyEventCollection->length(),
@@ -47,7 +48,8 @@ class BodyController extends GameController
                 LabelConstant::LBL_QUANTITY,
                 LabelConstant::LBL_THROW,
                 LabelConstant::LBL_QUANTITY],
-                false),
+                false,
+                array_fill(0, 4, $style)),
             $content
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_DOUBLE_TABLE, $attributes);

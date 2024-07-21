@@ -1,3 +1,7 @@
+.table-xs > :not(caption) > * > * {
+    padding: .125rem .125rem;
+}
+  
 .table>:not(caption)>*>*.bg-g0, .bg-g0 {
     color: #fff;
     background-color: #4d4b46;

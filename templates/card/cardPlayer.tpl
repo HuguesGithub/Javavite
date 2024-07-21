@@ -3,7 +3,7 @@
     <div class="card-header">%1$s</div>
     <div class="card-body px-0">
         <p class="mx-2">%2$s</p>
-        <table class="table table-sm text-center mt-3">
+        <table class="table table-xs text-center mt-3">
             <thead>
                 %3$s
             </thead>
@@ -11,7 +11,7 @@
                 %4$s
             </tbody>
         </table>
-        <table class="table table-sm text-center mt-3">
+        <table class="table table-xs text-center mt-3">
             <thead>
                 %5$s
             </thead>
@@ -19,7 +19,7 @@
                 %6$s
             </tbody>
         </table>
-        <table class="table table-sm text-center mt-3">
+        <table class="table table-xs text-center mt-3">
             <thead>
                 %8$s
             </thead>

@@ -19,23 +19,24 @@ class SuspensionController extends GameController
 
         $content = '';
         for ($i=1; $i<=10; $i++) {
-            $styles = [$i<=4 ? ' class="bg-dark text-white"' : '', $i<=4 ? ' class="bg-dark text-white"' : '', '',''];
             $content .= $controller->getRow([
                 $i,
                 $suspensionEventCollection->filter([ConstantConstant::CST_SCORE=>$i])->length(),
                 $i+10,
                 $suspensionEventCollection->filter([ConstantConstant::CST_SCORE=>$i+10])->length()],
                 true,
-                $styles
+                [' class="bg-light"', $i<=4 ? ' class="bg-danger"' : '', ' class="bg-light"', '']
             );
         }
 
+        $style = ' class="bg-dark text-white"';
         $attributes = [
             LabelConstant::LBL_SUSPENSION,
             $controller->getRow([
                 LabelConstant::LBL_THROWN_DICE,
                 LabelConstant::LBL_FAILED_DICE],
-                false
+                false,
+                array_fill(0, 3, $style)
             ),
             $controller->getRow([
                 $suspensionEventCollection->length(),
@@ -46,7 +47,8 @@ class SuspensionController extends GameController
                 LabelConstant::LBL_QUANTITY,
                 LabelConstant::LBL_THROW,
                 LabelConstant::LBL_QUANTITY],
-                false),
+                false,
+                array_fill(0, 4, $style)),
             $content
         ];
         return $controller->getRender(TemplateConstant::TPL_CARD_DOUBLE_TABLE, $attributes);

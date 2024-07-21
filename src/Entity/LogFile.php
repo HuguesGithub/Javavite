@@ -156,6 +156,7 @@ class LogFile extends Entity
         $this->tempEvent = new Event();
 
         $patternTest = '/(.*) : Test (.*) : Jet = (\d*)(.*requis ([<>\d]*))?/';
+        $patternTestMeteo = '/(.*)jet = (\d*).*(\d*)/';
 
         $arrLignesNonTraitees = [];
         
@@ -168,6 +169,10 @@ class LogFile extends Entity
                 continue;
             }
 
+            if ($this->isAnotherLine($line)) {
+                continue;
+            }
+
             if (preg_match($patternTest, $line, $matches)) {
                 $this->objGame->addGameTest($matches);
                 if ($matches[2]=='Départ') {
@@ -176,8 +181,8 @@ class LogFile extends Entity
                 }
                 continue;
             }
-
-            if ($this->isAnotherLine($line)) {
+            if (preg_match($patternTestMeteo, $line, $matches)) {
+                $this->objGame->addGameTest([null, '', 'Météo', $matches[2], $matches[3]]);
                 continue;
             }
 
@@ -212,10 +217,14 @@ class LogFile extends Entity
             "Faites vrombir les moteurs",
             "de pénalité pour être sorti du virage",
             "Le temps est au beau fixe",
+            "Le temps est variable",
             "Il va pleuvoir pendant toute la course.",
             "a calé !",
             "abandon par un accrochage",
             "automatiquement raté du fait de l'élimination",
+            "Le temps reste très incertain",
+            "La pluie semble s'installer",
+            "La pluie s'installe défintivement",
         ];
         foreach ($checks as $check) {
             if (strpos($line, $check)!==false) {

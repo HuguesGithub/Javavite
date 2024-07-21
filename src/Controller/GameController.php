@@ -7,6 +7,7 @@ use src\Constant\TemplateConstant;
 use src\Entity\Game;
 use src\Entity\BodyTest;
 use src\Entity\EngineTest;
+use src\Entity\MeteoTest;
 use src\Entity\PitStopTest;
 use src\Entity\StartTest;
 use src\Entity\SuspensionTest;
@@ -124,6 +125,7 @@ class GameController extends UtilitiesController
         $arrTestClasses = [
             EngineTest::class,
             BodyTest::class,
+            MeteoTest::class,
             PitStopTest::class,
             StartTest::class,
             SuspensionTest::class
@@ -162,16 +164,20 @@ class GameController extends UtilitiesController
                 $scores[$i],
                 $i+10,
                 $scores[$i+10]
-            ]);
+            ],
+            true,
+            [' class="bg-light"', '', ' class="bg-light"', '']);
         }
 
+        $style = ' class="bg-dark text-white"';
         $attributes = [
             LabelConstant::LBL_GLOBAL,
             $this->getRow([
                 LabelConstant::LBL_THROWN_DICE,
                 LabelConstant::LBL_FAILED_DICE,
                 LabelConstant::LBL_FORCED_DICE],
-                false
+                false,
+                array_fill(0, 3, $style)
             ),
             $this->getRow([
                 $quantity,
@@ -183,7 +189,8 @@ class GameController extends UtilitiesController
                 LabelConstant::LBL_QUANTITY,
                 LabelConstant::LBL_THROW,
                 LabelConstant::LBL_QUANTITY],
-                false),
+                false,
+                array_fill(0, 4, $style)),
             $content
         ];
         return $this->getRender(TemplateConstant::TPL_CARD_DOUBLE_TABLE, $attributes);

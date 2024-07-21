@@ -26,8 +26,10 @@ class PlayerController extends UtilitiesController
             $this->objPlayer->getEndPosition(),
             $this->objPlayer->getStartPosition(),
             $this->objPlayer->getMoves(),
-            $this->objPlayer->getDnf()
-        ]);
+            $this->objPlayer->getDnf()],
+            true,
+            [' class="bg-light"', '', '', '', $this->objPlayer->getDnf()=='' ? '' : ' class="bg-danger"']
+        );
 
     }
 

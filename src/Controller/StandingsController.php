@@ -22,6 +22,7 @@ class StandingsController extends GameController
             $playerCollection->next();
         }
 
+        $style = ' class="bg-dark text-white"';
         $attributes = [
             LabelConstant::LBL_STANDINGS,
             // class additionnelle pour card-body
@@ -32,7 +33,8 @@ class StandingsController extends GameController
                 LabelConstant::LBL_START_POSITION,
                 LabelConstant::LBL_MOVES,
                 LabelConstant::LBL_DNF],
-                false
+                false,
+                array_fill(0, 5, $style)
             ),
             $content
         ];

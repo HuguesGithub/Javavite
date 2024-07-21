@@ -75,10 +75,19 @@ class Game extends Entity
 
     public function addGameTest(array $params): void
     {
-        $objPlayer = $this->getPlayerByPlayerName($params[1]);
+        if ($params[1]!='') {
+            $objPlayer = $this->getPlayerByPlayerName($params[1]);
+        } else {
+            $objPlayer = new Player('');
+        }
         $typeTest = $params[2];
 
         switch ($typeTest) {
+            case 'Météo' :
+                $this->addGameEvent(
+                    $objPlayer,
+                    new MeteoTest($params[3]));
+            break;
             case 'moteur' :
                 $this->addGameEvent(
                     $objPlayer,
@@ -168,7 +177,9 @@ class Game extends Entity
             break;
         }
         $this->eventCollection->addItem($objEvent);
-        $objPlayer->addPlayerEvent($objEvent);
+        if ($objPlayer->getPlayerName()!='') {
+            $objPlayer->addPlayerEvent($objEvent);
+        }
     }
     
 }
