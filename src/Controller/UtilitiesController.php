@@ -1,8 +1,16 @@
 <?php
 namespace src\Controller;
 
+use src\Collection\EventCollection;
 use src\Constant\ConstantConstant;
+use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
+use src\Entity\BodyTest;
+use src\Entity\EngineTest;
+use src\Entity\MeteoTest;
+use src\Entity\PitStopTest;
+use src\Entity\StartTest;
+use src\Entity\SuspensionTest;
 use src\Exception\TemplateException;
 use src\Utils\SessionUtils;
 
@@ -95,6 +103,126 @@ class UtilitiesController
             $content .= $element;
         }
         return $content . '</section>';
+    }
+
+
+    protected function getThrownDiceBlock(EventCollection $eventCollection, bool $isGame=true): string
+    {
+        $engineEventCollection = $eventCollection->getClassEvent(EngineTest::class);
+        $bodyEventCollection = $eventCollection->getClassEvent(BodyTest::class);
+        $suspensionEventCollection = $eventCollection->getClassEvent(SuspensionTest::class);
+        $pitStopEventCollection = $eventCollection->getClassEvent(PitStopTest::class);
+
+        $style = ' class="bg-dark text-white"';
+
+        // First Row Header
+        $content  = $this->getRow([
+            ConstantConstant::CST_NBSP,
+            LabelConstant::LBL_GLOBAL,
+            LabelConstant::LBL_ENGINE,
+            LabelConstant::LBL_BODY,
+            LabelConstant::LBL_SUSPENSION,
+            ConstantConstant::CST_NBSP,
+            LabelConstant::LBL_PITS,
+            LabelConstant::LBL_START,
+            'Météo',
+            ConstantConstant::CST_NBSP,
+            ],
+            false,
+            array_fill(0, 10, $style),
+        );
+
+        // First Row Data (Jet effectués)
+        $content .= $this->getRow([
+            LabelConstant::LBL_THROWN_DICE,
+            $eventCollection->notFilter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_LONG_STOP])->length(),
+            $engineEventCollection->length(). ' ('.$engineEventCollection->filter([ConstantConstant::CST_INFLICTED=>1])->length().')',
+            $bodyEventCollection->length(),
+            $suspensionEventCollection->length(),
+            ConstantConstant::CST_NBSP,
+            $pitStopEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP])->length(),
+            $eventCollection->getClassEvent(StartTest::class)->length(),
+            $eventCollection->getClassEvent(MeteoTest::class)->length(),
+            ConstantConstant::CST_NBSP
+        ],
+            true,
+            array_merge(
+                [ConstantConstant::CST_CLASS_BG_LIGHT],
+                array_fill(0, 4, ''),
+                [ConstantConstant::CST_CLASS_BG_DARK],
+                array_fill(0, 3, ''),
+                [ConstantConstant::CST_CLASS_BG_DARK])
+        );
+
+        // Second Row Data (Echecs)
+        $content .= $this->getRow([
+            LabelConstant::LBL_FAILED_DICE,
+            $eventCollection->filter([ConstantConstant::CST_FAIL=>true])->length(),
+            $engineEventCollection->filter([ConstantConstant::CST_FAIL=>true])->length(). ' ('.$engineEventCollection->filter([ConstantConstant::CST_FAIL=>true, ConstantConstant::CST_INFLICTED=>true])->length().')',
+            $bodyEventCollection->filter([ConstantConstant::CST_FAIL=>true])->length(). ' ('.$bodyEventCollection->filter([ConstantConstant::CST_FAIL=>true, ConstantConstant::CST_INFLICTED=>true])->length().')',
+            $suspensionEventCollection->filter([ConstantConstant::CST_FAIL=>true])->length(),
+            ConstantConstant::CST_NBSP,
+            $pitStopEventCollection->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP, ConstantConstant::CST_FAIL=>true])->length(),
+            ConstantConstant::CST_NBSP],
+            true,
+            array_merge(
+                [ConstantConstant::CST_CLASS_BG_LIGHT],
+                array_fill(0, 4, ''),
+                [ConstantConstant::CST_CLASS_BG_DARK, '', ' colspan="3" class="bg-dark"']
+            )
+        );
+
+        if ($isGame) {
+            $content .= $this->getRow([
+                'Détails',
+                LabelConstant::LBL_GLOBAL,
+                LabelConstant::LBL_ENGINE,
+                LabelConstant::LBL_BODY,
+                LabelConstant::LBL_SUSPENSION,
+                ConstantConstant::CST_NBSP,
+                LabelConstant::LBL_GLOBAL,
+                LabelConstant::LBL_ENGINE,
+                LabelConstant::LBL_BODY,
+                LabelConstant::LBL_SUSPENSION],
+                false,
+                array_fill(0, 10, $style)
+            );
+
+            for ($i=1; $i<=10; $i++) {
+                $content .= $this->getRow([
+                    $i,
+                    $eventCollection->filter([ConstantConstant::CST_SCORE=>$i])->length(),
+                    $engineEventCollection->filter([ConstantConstant::CST_SCORE=>$i])->length(),
+                    $bodyEventCollection->filter([ConstantConstant::CST_SCORE=>$i])->length(),
+                    $suspensionEventCollection->filter([ConstantConstant::CST_SCORE=>$i])->length(),
+                    $i+10,
+                    $eventCollection->filter([ConstantConstant::CST_SCORE=>$i+10])->notFilter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_LONG_STOP])->length(),
+                    $engineEventCollection->filter([ConstantConstant::CST_SCORE=>$i+10])->length(),
+                    $bodyEventCollection->filter([ConstantConstant::CST_SCORE=>$i+10])->length(),
+                    $suspensionEventCollection->filter([ConstantConstant::CST_SCORE=>$i+10])->length()],
+                    true,
+                    [ConstantConstant::CST_CLASS_BG_LIGHT, '', '', '', '', ConstantConstant::CST_CLASS_BG_LIGHT]
+                );
+            }
+
+            $content .= $this->getRow([
+                'Moyenne (Attendue)',
+                round($eventCollection->notFilter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_LONG_STOP])->sum(true)/$eventCollection->notFilter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_LONG_STOP])->length(), 2).' (10.50)',
+                'Unitaire',
+                round($eventCollection->notFilter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_LONG_STOP])->length()/20,2),
+                ConstantConstant::CST_NBSP],
+                false,
+                array_merge([
+                    $style.ConstantConstant::CST_COL_SPAN_2,
+                    $style.ConstantConstant::CST_COL_SPAN_2,
+                    $style,
+                    $style.ConstantConstant::CST_COL_SPAN_2,
+                    $style.' colspan="3"'
+                ])
+            );
+        }
+        
+        return $content;
     }
 
 }

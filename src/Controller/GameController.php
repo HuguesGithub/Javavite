@@ -1,16 +1,19 @@
 <?php
 namespace src\Controller;
 
+use src\Collection\EventCollection;
 use src\Constant\ConstantConstant;
 use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
 use src\Entity\Game;
 use src\Entity\BodyTest;
 use src\Entity\EngineTest;
+use src\Entity\GearEvent;
 use src\Entity\MeteoTest;
 use src\Entity\PitStopTest;
 use src\Entity\StartTest;
 use src\Entity\SuspensionTest;
+use src\Entity\TestEvent;
 use src\Utils\SessionUtils;
 
 class GameController extends UtilitiesController
@@ -25,62 +28,26 @@ class GameController extends UtilitiesController
     public function display(): string
     {
         $str = $this->getTopBar();
+        $str .= '<div class="tab-content col-8 offset-2">';
+
+        $eventCollection = $this->objGame->getEventCollection()->getClassEvent(TestEvent::class, true);
+        $gearEventCollection = $this->objGame->getEventCollection()->getClassEvent(GearEvent::class);
+
         $playerSelection = SessionUtils::fromGet('player');
         if ($playerSelection=='') {
             $this->objGame->sortPlayers();
-            $str .= $this->addSection([
-                $this->addSection([
-                    // Card Classement
-                    StandingsController::displayStandings($this->objGame),
-                    $this->addW100(),
-                    // Card Global
-                    $this->displayGlobal(),
-                    // Card Moteur
-                    EngineController::displayEngine($this->objGame),
-                    $this->addW100(),
-                    // Card Carrosserie
-                    BodyController::displayBody($this->objGame),
-                    // Card Tenue de Route
-                    SuspensionController::displaySuspension($this->objGame),
-                    $this->addW100(),
-                    // Card Départ
-                    StartController::displayStart($this->objGame),
-                    // Card Stands
-                    PitStopController::displayPitStops($this->objGame),
-                    $this->addW100(),
-                    // Card Abandon
-                    DnfController::displayDnfs($this->objGame),
-                    $this->addW100(),
-                    // Card Consommation
-                    FuelController::displayFuel($this->objGame),
-                    // Card Pneu
-                    TireController::displayTires($this->objGame),
-                    $this->addW100(),
-                    // Card Frein
-                    BrakeController::displayBrakes($this->objGame),
-                    $this->addW100(),
-                    // Card Aspiration
-                    TrailController::displayTrails($this->objGame),
-                    // Card Tête A Queue
-                    TaqController::displayTaQ($this->objGame)
-                    ],
-                    'col'
-                ),
-                $this->addW100(),
-                $this->addSection([
-                    // Card Vitesses
-                    GearController::displayGears($this->objGame)
-                    ],
-                    'col'
-                ),
-                ],
-                'p-3 mt-5 col-8 offset-2'
-            );
+            $str .= $this->addNavTabs();
+            // Card Classement
+            $str .= $this->addTab(StandingsController::displayStandings($this->objGame), 'standings', true);
+            // Card Jets de dés
+            $str .= $this->addTab($this->diceThrow($eventCollection), 'dice');
+            // Card Vitesses
+            $str .= $this->addTab($this->gearGraph($gearEventCollection), 'speed');
+            // Cards Divers
+            $str .= $this->addTab($this->tabOthers(), 'other');
         }
 
-        $lis = '';
         // Joueurs
-        $contentPlayers = [];
         $objPlayers = $this->objGame->getPlayerCollection();
         $objPlayers->rewind();
         while ($objPlayers->valid()) {
@@ -90,115 +57,102 @@ class GameController extends UtilitiesController
                 $objPlayers->next();
                 continue;
             }
-            // Construction du contenu de la section principale
-            $contentPlayers[] = $this->addSection(
-                [$objPlayer->getController()->display()],
-                'col'
-            );
-            $contentPlayers[] = $this->addW100();
-            // Construction du menu latéral
-            $lis .= '<li class="list-group-item"><a href="#'.$playerName.'">'.$playerName.'</a></li>';
+
+            $str .= $this->addTab($objPlayer->getController()->display(), 'player'.$objPlayer->getEndPosition());
             $objPlayers->next();
         }
+        $str .= '</div>';
 
-        // Menu flottant
-        $menuFlottant = '<div class="card grey-panel">
-            <div class="card-header grey-header text-center">
-                <h5>Accès rapide</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-group-items ps-0">
-                    '.$lis.'
-                </ul>
-            </div>
-        </div>';
-/*
-        $fileName = 'test.html';
-        $handle = fopen(PLUGIN_PATH.TemplateConstant::HTML_PATH.$fileName, 'w');
-        fputs($handle, $str.$this->addSection($contentPlayers, 'p-3 mt-3 col-8 offset-2'));
-        fclose($handle);
-*/
-        return $str.$this->addSection($contentPlayers, 'p-3 mt-3 col-8 offset-2').$menuFlottant;
-    }
-
-    private function displayGlobal(): string
-    {
-        $arrTestClasses = [
-            EngineTest::class,
-            BodyTest::class,
-            MeteoTest::class,
-            PitStopTest::class,
-            StartTest::class,
-            SuspensionTest::class
-        ];
-
-        $quantity = 0;
-        $quantityFail = 0;
-        $quantityInflicted = 0;
-        $scores = [];
-        foreach ($arrTestClasses as $objTest) {
-            $classCollection = $this->objGame->getEventCollection()->getClassEvent($objTest);
-            if ($objTest==PitStopTest::class) {
-                // Pour les PitStop, on doit ne prendre en compte que les arrêts courts.
-                // Les arrêts longs sont listés mais ne comptent pas comme des tests à proprement parlé
-                $quantity += $classCollection
-                    ->filter([ConstantConstant::CST_TYPE=>ConstantConstant::CST_SHORT_STOP])
-                    ->length();
-            } else {
-                $quantity += $classCollection->length();
-            }
-            $quantityFail += $classCollection->filter([ConstantConstant::CST_FAIL=>true])->length();
-            $quantityInflicted += $classCollection->filter([ConstantConstant::CST_INFLICTED=>true])->length();
-
-            for ($i=1; $i<=20; $i++) {
-                if (!isset($scores[$i])) {
-                    $scores[$i] = 0;
-                }
-                $scores[$i] += $classCollection->filter([ConstantConstant::CST_SCORE=>$i])->length();
-            }
-        }
-
-        $content = '';
-        for ($i=1; $i<=10; $i++) {
-            $content .= $this->getRow([
-                $i,
-                $scores[$i],
-                $i+10,
-                $scores[$i+10]
-            ],
-            true,
-            [' class="bg-light"', '', ' class="bg-light"', '']);
-        }
-
-        $style = ' class="bg-dark text-white"';
-        $attributes = [
-            LabelConstant::LBL_GLOBAL,
-            $this->getRow([
-                LabelConstant::LBL_THROWN_DICE,
-                LabelConstant::LBL_FAILED_DICE,
-                LabelConstant::LBL_FORCED_DICE],
-                false,
-                array_fill(0, 3, $style)
-            ),
-            $this->getRow([
-                $quantity,
-                $quantityFail,
-                $quantityInflicted],
-                false),
-            $this->getRow([
-                LabelConstant::LBL_THROW,
-                LabelConstant::LBL_QUANTITY,
-                LabelConstant::LBL_THROW,
-                LabelConstant::LBL_QUANTITY],
-                false,
-                array_fill(0, 4, $style)),
-            $content
-        ];
-        return $this->getRender(TemplateConstant::TPL_CARD_DOUBLE_TABLE, $attributes);
+        return $str;
     }
 
     private function getTopBar(): string
     {
         return '<div class="fixed-top bg-secondary p-2"><a href="/" class="btn btn-light btn-sm"><i class="fa-solid fa-angles-left"></i> Retour</a></div>';
+    }
+
+    private function addNavTabs(): string
+    {
+        $str  = '<ul class="nav nav-tabs justify-content-between pt-5" role="tabList">';
+        $str .= '<li class="nav-item"><button class="nav-link active" id="standings-tab" data-bs-toggle="tab" data-bs-target="#standings" type="button" role="tab" aria-controls="standings" aria-selected="true">Classements</button></li>';
+        $str .= '<li class="nav-item"><button class="nav-link" id="dice-tab" data-bs-toggle="tab" data-bs-target="#dice" type="button" role="tab" aria-controls="dice" aria-selected="true">Jets de dés</button></li>';
+        $str .= '<li class="nav-item"><button class="nav-link" id="speed-tab" data-bs-toggle="tab" data-bs-target="#speed" type="button" role="tab" aria-controls="speed" aria-selected="true">Vitesses</button></li>';
+        $str .= '<li class="nav-item"><button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab" aria-controls="other" aria-selected="true">Divers</button></li>';
+
+        $str .= '<li class="nav-item dropdown">';
+        $str .= '<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Joueurs</a>';
+        $str .= '<ul class="dropdown-menu">';
+        $objPlayers = $this->objGame->getPlayerCollection();
+        $objPlayers->rewind();
+        while ($objPlayers->valid()) {
+            $objPlayer = $objPlayers->current();
+            $playerName = $objPlayer->getPlayerName();
+            $id = 'player'.$objPlayer->getEndPosition();
+            $str .= '<li><a class="dropdown-item" id="'.$id.'-tab" data-bs-toggle="tab" data-bs-target="#'.$id.'" type="button" role="tab" aria-controls="'.$id.'" aria-selected="true">'.$playerName.'</a></li>';
+            $objPlayers->next();
+        }
+        $str  .= '</ul>';
+        $str  .= '</li>';
+        $str  .= '</ul>';
+
+        return $str;
+    }
+
+    private function addTab(string $content, string $id, bool $active=false): string
+    {
+        return '<div class="tab-pane'.($active?' active':'').'" id="'.$id.'" role="tabpanel" aria-labelledby="'.$id.'-tab">'.$content.'</div>';
+    }
+
+    private function diceThrow(EventCollection $eventCollection): string
+    {
+        $attributes = [
+            LabelConstant::LBL_THROWN_DICE,
+            // class additionnelle pour card-body
+            'p-0',
+            '',
+            $this->getThrownDiceBlock($eventCollection)
+        ];
+        return $this->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
+    }
+
+    private function gearGraph(EventCollection $eventCollection): string
+    {
+        $attributes = [
+            LabelConstant::LBL_MOVE_DICE,
+            // class additionnelle pour card-body
+            'p-0',
+            '',
+            GearController::displayGears($eventCollection)
+        ];
+        return $this->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
+    }
+
+    private function tabOthers(): string
+    {
+        return $this->addSection([
+            // Card Départ
+            StartController::displayStart($this->objGame),
+            // Card Stands
+            PitStopController::displayPitStops($this->objGame),
+            $this->addW100(),
+            // Card Abandon
+            DnfController::displayDnfs($this->objGame),
+            $this->addW100(),
+            // Card Consommation
+            FuelController::displayFuel($this->objGame),
+            // Card Pneu
+            TireController::displayTires($this->objGame),
+            $this->addW100(),
+            // Card Frein
+            BrakeController::displayBrakes($this->objGame),
+            $this->addW100(),
+            // Card Aspiration
+            TrailController::displayTrails($this->objGame),
+            // Card Tête A Queue
+            TaqController::displayTaQ($this->objGame)
+            ],
+            'col'
+        );
+
     }
 }

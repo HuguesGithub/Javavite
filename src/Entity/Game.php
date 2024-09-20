@@ -86,7 +86,7 @@ class Game extends Entity
             case 'Météo' :
                 $this->addGameEvent(
                     $objPlayer,
-                    new MeteoTest($params[3]));
+                    new MeteoTest($params[3], $params[4]));
             break;
             case 'moteur' :
                 $this->addGameEvent(

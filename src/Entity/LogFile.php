@@ -185,7 +185,7 @@ class LogFile extends Entity
     private function isLineATest(string $line): bool
     {
         $patternTest = '/(.*) : Test (.*) : Jet = (\d*)(.*requis ([<>\d]*))?/';
-        $patternTestMeteo = '/(.*)jet = (\d*).*(\d*)/';
+        $patternTestMeteo = '/(.*)jet = (\d*).*(et|<|>).*/';
 
         $bln = true;
         if (preg_match($patternTest, $line, $matches)) {
@@ -195,7 +195,15 @@ class LogFile extends Entity
                 $this->dnfPosition++;
             }
         } elseif (preg_match($patternTestMeteo, $line, $matches)) {
-            $this->objGame->addGameTest([null, '', 'Météo', $matches[2], $matches[3]]);
+            if ($matches[3]=='et') {
+                $type = 'Variable';
+            } elseif ($matches[3]=='<') {
+                $type = 'Pluie';
+            } else {
+                // >
+                $type = 'Beau temps';
+            }
+            $this->objGame->addGameTest([null, '', 'Météo', $matches[2], $type]);
         } else {
             $bln = false;
         }
@@ -209,28 +217,31 @@ class LogFile extends Entity
         // L'idée est de chercher certaines phrases clés qui sont à ignorer.
         // Ca permet d'éviter de passer dans toutes les regexp et de ne rien trouver.
         $checks = [
+            "Bienvenue dans les essais",
+            "La piste est m",
+            "La piste est s",
+            "Score = Nombre de Coups",
+            "Essai n°",
+            "de pénalité pour être sorti du virage",
+            "Le commissaire de course",
+            "En cas de comportement",
+            "La course commencera dès le choix",
+            "Faites vrombir les moteurs",
             "choisi son stand",
             "à vous de choisir votre stand",
             "c'est votre tour!",
+            "est parti comme une fusée",
             "perd un morceau",
             "perd un point moteur",
             "perd en adhérence",
-            "Bienvenue dans les essais",
-            "Score = Nombre de Coups",
-            "Le commissaire de course",
-            "En cas de comportement",
-            "La piste est",
-            "est parti comme une fusée",
-            "Essai n°",
-            "La course commencera dès le choix",
-            "Faites vrombir les moteurs",
-            "de pénalité pour être sorti du virage",
-            "Le temps est au beau fixe",
-            "Le temps est variable",
-            "Il va pleuvoir pendant toute la course.",
+
             "a calé !",
             "abandon par un accrochage",
             "automatiquement raté du fait de l'élimination",
+            "Il va pleuvoir pendant toute la course.",
+            "Le beau temps",
+            "Le temps est au beau fixe",
+            "Le temps est variable",
             "Le temps reste très incertain",
             "La pluie semble s'installer",
             "La pluie s'installe défintivement",

@@ -20,46 +20,46 @@ class EventController extends GameController
 
     public static function getEventLi(Event $event): string
     {
-        $returned = '<li class="bg-g0" title="%s">%s</li>';
+        $returned = '<li class="bg-g%s" title="%s">%s</li>';
         switch ($event::class) {
             case BrakeEvent::class :
-                $params = ['Freinage', '-'];
+                $params = ['0', 'Freinage', '-'];
             break;
             case DnfEvent::class :
-                $params = ['Abandon', 'X'];
+                $params = ['0', 'Abandon', 'X'];
             break;
             case FuelEvent::class :
-                $params = ['Rétrogradation', $event->getQuantity()];
+                $params = ['0', 'Rétrogradation', $event->getQuantity()];
             break;
             case GearEvent::class :
-                return GearController::getGearLi($event);
+                $params = [$event->getType(), 'Vitesse', $event->getScore()];
             break;
             case TaqEvent::class :
-                $params = ['Tête à queue', 'U'];
+                $params = ['0', 'Tête à queue', 'U'];
             break;
             case TireEvent::class :
-                $params = ['Sortie de virage', '-'.$event->getQuantity()];
+                $params = ['0', 'Sortie de virage', '-'.$event->getQuantity()];
             break;
             case TrailEvent::class :
-                $params = ['Aspiration', '+'];
+                $params = ['0', 'Aspiration', '+'];
             break;
             case BodyTest::class :
-                $params = ['Carrosserie', $event->getScore()];
+                $params = ['0', 'Carrosserie', $event->getScore()];
             break;
             case EngineTest::class :
-                $params = ['Moteur', $event->getScore()];
+                $params = ['0', 'Moteur', $event->getScore()];
             break;
             case PitStopTest::class :
-                $params = ['Arrêt aux stands', '¤'];
+                $params = ['0', 'Arrêt aux stands', '¤'];
             break;
             case StartTest::class :
-                $params = ['Départ', $event->getScore()];
+                $params = ['0', 'Départ', $event->getScore()];
             break;
             case SuspensionTest::class :
-                $params = ['Tenue de route', $event->getScore()];
+                $params = ['0', 'Tenue de route', $event->getScore()];
             break;
             default :
-                $params = ['Non défini', '?'];
+                $params = ['0', 'Non défini', '?'];
             break;
         }
         return vsprintf($returned, $params);

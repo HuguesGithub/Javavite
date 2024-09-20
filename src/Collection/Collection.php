@@ -66,12 +66,6 @@ class Collection implements \Iterator
         return count($this->items);
     }
 
-    public function sort(string $field): void
-    {
-        // TODO : Trier les joueurs selon l'ordre d'arrivée
-        // asort($this->items, $field);
-    }
-
     public function keyExists($key): bool
     {
         return isset($this->items[$key]);

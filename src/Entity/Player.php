@@ -38,8 +38,8 @@ class Player extends Entity
     public function getCardTitle(): string
     {
         $str  = $this->playerName;
-        $str .= ' - Arrivée : '.$this->endPosition.($this->endPosition==1 ? 'ère' : 'ème');
-        $str .= ' - Départ : '.$this->startPosition.($this->startPosition==1 ? 'ère' : 'ème');
+        $str .= ' - Position à l\'arrivée : '.$this->endPosition.($this->endPosition==1 ? 'ère' : 'ème');
+        $str .= ' - Position au départ : '.$this->startPosition.($this->startPosition==1 ? 'ère' : 'ème');
         $str .= ' - '.$this->getMoves().' coups';
         $dnf = $this->getDnf();
         if ($dnf!='') {

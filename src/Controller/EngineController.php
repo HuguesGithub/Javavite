@@ -20,11 +20,11 @@ class EngineController extends GameController
         for ($i=1; $i<=10; $i++) {
             $content .= $controller->getRow([
                 $i,
-                $engineEventCollection->filter(['score'=>$i])->length(),
+                $engineEventCollection->filter([ConstantConstant::CST_SCORE=>$i])->length(),
                 $i+10,
-                $engineEventCollection->filter(['score'=>$i+10])->length()],
+                $engineEventCollection->filter([ConstantConstant::CST_SCORE=>$i+10])->length()],
                 true,
-                [' class="bg-light"', $i<=4 ? ' class="bg-danger"' : '', ' class="bg-light"', '']
+                [ConstantConstant::CST_CLASS_BG_LIGHT, $i<=4 ? ' class="bg-danger"' : '', ConstantConstant::CST_CLASS_BG_LIGHT, '']
             );
         }
 

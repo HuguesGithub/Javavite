@@ -1,6 +1,7 @@
 <?php
 namespace src\Controller;
 
+use src\Collection\EventCollection;
 use src\Constant\ConstantConstant;
 use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
@@ -10,59 +11,51 @@ use src\Entity\GearEvent;
 class GearController extends EventController
 {
 
-    public static function displayGears(Game $objGame): string
+    public static function displayGears(EventCollection $gearEventCollection): string
     {
-        $controller = new GearController($objGame);
-
-        $arr = [
-            1 => ['min'=>1, 'max'=>2],
-            2 => ['min'=>2, 'max'=>4],
-            3 => ['min'=>4, 'max'=>8],
-            4 => ['min'=>7, 'max'=>12],
-            5 => ['min'=>11, 'max'=>20],
-            6 => ['min'=>21, 'max'=>30]
-        ];
+        $controller = new UtilitiesController();
         $content = '';
 
+        $arr = [
+            1 => ['min'=>1, 'max'=>2, 'exp'=>'1.50'],
+            2 => ['min'=>2, 'max'=>4, 'exp'=>'3.33'],
+            3 => ['min'=>4, 'max'=>8, 'exp'=>'6.37'],
+            4 => ['min'=>7, 'max'=>12, 'exp'=>'9.50'],
+            5 => ['min'=>11, 'max'=>20, 'exp'=>'15.50'],
+            6 => ['min'=>21, 'max'=>30, 'exp'=>'25.50']
+        ];
+                    
         foreach ($arr as $key => $minMax) {
             $min = $minMax['min'];
             $max = $minMax['max'];
+            $exp = $minMax['exp'];
 
-            $arrContent = [];
-            $styles = [];
-            if ($min!=1) {
-                $arrContent[] = ConstantConstant::CST_NBSP;
-                $styles[] = ' colspan="'.($min-1).'"';
-            }
+            $content .= $controller->getRow(
+                array_merge([ConstantConstant::CST_NBSP, 'Moyenne', 'Attendue'], range($min, $max), ($max!=$min+9)?[ConstantConstant::CST_NBSP]:[]),
+                false,
+                array_merge(array_fill(0, 4+$max-$min, ' class="bg-dark text-white"'), [' colspan="'.(9-$max+$min).'" class="bg-light"'])
+            );
+
+            $line = [
+                $key,
+                round($gearEventCollection->filter([ConstantConstant::CST_TYPE=>$key])->sum()/max(1, $gearEventCollection->filter([ConstantConstant::CST_TYPE=>$key])->length()), 2),
+                $exp
+            ];
             for ($i=$min; $i<=$max; $i++) {
-                $arrContent[] = $objGame
-                    ->getEventCollection()
-                    ->getClassEvent(GearEvent::class)
-                    ->filter(['type'=>$key, 'score'=>$i])
-                    ->length();
-                $styles[] = ' class="bg-g'.$key.'"';
+                $line[] = $gearEventCollection->filter([ConstantConstant::CST_TYPE=>$key, ConstantConstant::CST_SCORE=>$i])->length();
             }
-            if ($max!=30) {
-                $arrContent[] = ConstantConstant::CST_NBSP;
-                $styles[] = ' colspan="'.(30-$max).'"';
+            if ($max!=$min+9) {
+                $line [] = ConstantConstant::CST_NBSP;
             }
-            $content .= $controller->getRow($arrContent, true, $styles);
+
+            $content .= $controller->getRow(
+                $line,
+                true,
+                array_merge([ConstantConstant::CST_CLASS_BG_LIGHT], array_fill(0, 3+$max-$min, ' class="bg-g'.$key.'"'), [' colspan="'.(9-$max+$min).'"'.ConstantConstant::CST_CLASS_BG_LIGHT])
+            );
         }
 
-        $attributes = [
-            LabelConstant::LBL_MOVE_DICE,
-            // class additionnelle pour card-body
-            'px-0',
-            $controller->getRow(range(1, 30), false),
-            $content
-        ];
-        return $controller->getRender(TemplateConstant::TPL_CARD_SIMPLE_TABLE, $attributes);
-    }
-
-    public static function getGearLi(GearEvent $gear): string
-    {
-        // TODO : Probablement prévoir un switch sur getType.
-        return '<li class="bg-g'.$gear->getType().'">'.$gear->getScore().'</li>';
+        return $content;
     }
 
 }

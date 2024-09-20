@@ -4,9 +4,11 @@ namespace src\Controller;
 use src\Constant\ConstantConstant;
 use src\Constant\LabelConstant;
 use src\Constant\TemplateConstant;
+use src\Controller\GearController;
 use src\Entity\BodyTest;
 use src\Entity\EngineTest;
 use src\Entity\GearEvent;
+use src\Entity\TestEvent;
 use src\Entity\Player;
 use src\Entity\SuspensionTest;
 
@@ -28,13 +30,46 @@ class PlayerController extends UtilitiesController
             $this->objPlayer->getMoves(),
             $this->objPlayer->getDnf()],
             true,
-            [' class="bg-light"', '', '', '', $this->objPlayer->getDnf()=='' ? '' : ' class="bg-danger"']
+            [ConstantConstant::CST_CLASS_BG_LIGHT, '', '', '', $this->objPlayer->getDnf()=='' ? '' : ' class="bg-danger"']
         );
 
     }
 
     public function display(): string
     {
+        $eventCollection = $this->objPlayer->getEventCollection()->getClassEvent(TestEvent::class, true);
+        $gearEventCollection = $this->objPlayer->getEventCollection()->getClassEvent(GearEvent::class);
+        $titreCard  = $this->objPlayer->getCardTitle();
+
+        $bodyThrownDice = $this->getThrownDiceBlock($eventCollection, false);
+        $bodyGear = GearController::displayGears($gearEventCollection);
+
+        $attributes = [
+            $titreCard,
+            '',//$content,
+            '',
+            $bodyThrownDice,
+            '',
+            $bodyGear,
+            '',//$anchor,
+            '',//$headerGear,
+            '',//$contentGear,
+            '',//$debug
+        ];
+        return $this->getRender(TemplateConstant::TPL_CARD_PLAYER, $attributes);
+
+
+/*
+
+        $debug = '';
+        $events = $this->objPlayer->getEventCollection();
+        $events->rewind();
+        while ($events->valid()) {
+            $event = $events->current();
+            $debug .= EventController::getEventLi($event);
+            $events->next();
+        }
+            
         $arrTestClasses = [
             EngineTest::class,
             BodyTest::class,
@@ -61,7 +96,6 @@ class PlayerController extends UtilitiesController
         }
 
         $anchor = $this->objPlayer->getPlayerName();
-        $titreCard  = $this->objPlayer->getCardTitle();
 
         $content = '';
         $content .= StartController::displayPlayerStart($this->objPlayer);
@@ -169,13 +203,9 @@ class PlayerController extends UtilitiesController
             $contentGear,
             $debug
         ];
-/*
-        $fileName = $this->objPlayer->getPlayerName().'.html';
-        $handle = fopen(PLUGIN_PATH.TemplateConstant::HTML_PATH.$fileName, 'w');
-        fwrite($handle, $this->objPlayer->__toString());
-        fclose($handle);
-*/
+
         return $this->getRender(TemplateConstant::TPL_CARD_PLAYER, $attributes);
+        */
     }
 
     private function displayGears(string &$header, string &$content): void
@@ -206,7 +236,7 @@ class PlayerController extends UtilitiesController
                 $arrContent[] = $this->objPlayer
                     ->getEventCollection()
                     ->getClassEvent(GearEvent::class)
-                    ->filter(['type'=>$key, 'score'=>$i])
+                    ->filter([ConstantConstant::CST_TYPE=>$key, ConstantConstant::CST_SCORE=>$i])
                     ->length();
                 $styles[] = ' class="bg-g'.$key.'"';
             }

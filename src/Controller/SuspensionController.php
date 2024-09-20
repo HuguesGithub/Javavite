@@ -25,7 +25,7 @@ class SuspensionController extends GameController
                 $i+10,
                 $suspensionEventCollection->filter([ConstantConstant::CST_SCORE=>$i+10])->length()],
                 true,
-                [' class="bg-light"', $i<=4 ? ' class="bg-danger"' : '', ' class="bg-light"', '']
+                [ConstantConstant::CST_CLASS_BG_LIGHT, $i<=4 ? ' class="bg-danger"' : '', ConstantConstant::CST_CLASS_BG_LIGHT, '']
             );
         }
 

@@ -13,7 +13,6 @@ class StandingsController extends GameController
         $controller = new StandingsController($objGame);
 
         $content = '';
-        // TODO : Trier les Players par ordre d'arrivée, une fois que endPosition sera renseigné.
         $playerCollection = $objGame->getPlayerCollection();
         $playerCollection->rewind();
         while ($playerCollection->valid()) {

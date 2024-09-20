@@ -37,4 +37,7 @@ interface ConstantConstant
     public const CST_TYPE        = 'type';
     public const CST_EOL         = "\r\n";
     public const CST_TAB         = "\t";
+    public const CST_CLASS_BG_LIGHT = ' class="bg-light"';
+    public const CST_CLASS_BG_DARK  = ' class="bg-dark"';
+    public const CST_COL_SPAN_2     = ' colspan="2"';
 }
